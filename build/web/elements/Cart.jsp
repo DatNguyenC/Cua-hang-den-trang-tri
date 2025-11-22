@@ -404,9 +404,12 @@
             <div class="cart-items">
                 <% for (CartItemViewModel item : cartItems) { 
                     // Hình ảnh từ Den (sản phẩm chính)
-                    String imagePath = "assets/images/no-image.jpg";
-                    if (item.getHinhAnh() != null && !item.getHinhAnh().trim().isEmpty()) {
-                        imagePath = "assets/images/product/" + item.getHinhAnh();
+                    String imagePath = "assets/images/product/den_tran.png"; // Fallback mặc định
+                    String hinhAnh = item.getHinhAnh();
+                    if (hinhAnh != null && !hinhAnh.trim().isEmpty()) {
+                        hinhAnh = hinhAnh.trim();
+                        // Tên file đã không có dấu, không cần encode
+                        imagePath = "assets/images/product/" + hinhAnh;
                     }
                     String itemKey = item.getKey();
                 %>
@@ -415,7 +418,7 @@
                         <img src="${pageContext.request.contextPath}/<%= imagePath %>" 
                              alt="<%= item.getTenDen() != null ? item.getTenDen() : "Sản phẩm" %>" 
                              class="item-image"
-                             onerror="this.src='${pageContext.request.contextPath}/assets/images/no-image.jpg'">
+                             onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<div style=\\'width:80px;height:80px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;color:#999;\\'><i class=\\'fas fa-image\\'></i></div>';">
                     </a>
                     
                     <div class="item-info">
@@ -569,8 +572,7 @@
         }
         
         function checkout() {
-            alert('Tính năng thanh toán đang được phát triển!');
-            // TODO: Implement checkout
+            window.location.href = '${pageContext.request.contextPath}/CheckoutServlet';
         }
     </script>
     

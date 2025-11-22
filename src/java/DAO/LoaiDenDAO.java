@@ -90,4 +90,20 @@ public class LoaiDenDAO {
         }
         return false;
     }
+    
+    // Đếm số sản phẩm theo danh mục
+    public int countProductsByCategory(int maLoai) {
+        String sql = "SELECT COUNT(*) FROM den WHERE ma_loai = ?";
+        try (Connection conn = DBConnect.getConnection(); 
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, maLoai);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }

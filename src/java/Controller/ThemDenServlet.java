@@ -34,7 +34,10 @@ public class ThemDenServlet extends HttpServlet {
             String giaStr = request.getParameter("gia");
 
             int maLoai = Integer.parseInt(maLoaiStr);
-            int maNCC = Integer.parseInt(maNCCStr);
+            Integer maNCC = null;
+            if (maNCCStr != null && !maNCCStr.isEmpty()) {
+                maNCC = Integer.parseInt(maNCCStr);
+            }
             double gia = Double.parseDouble(giaStr);
 
             // Xử lý upload ảnh
@@ -63,11 +66,11 @@ public class ThemDenServlet extends HttpServlet {
             dao.insert(den);
 
             // Quay lại trang danh sách
-            response.sendRedirect("elements/ShopItem.jsp");
+            response.sendRedirect(request.getContextPath() + "/elements/ShopItem.jsp");
 
         } catch (Exception ex) {
             ex.printStackTrace();
-            response.sendRedirect("elements/ShopItem.jsp?error=1");
+            response.sendRedirect(request.getContextPath() + "/elements/ShopItem.jsp?error=1");
         }
     }
 }

@@ -11,14 +11,6 @@
         </file>
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/C:/Users/PC/Documents/NetBeansProjects/WebCuaHangDen/src/java/DAO/LoaiDenDAO.java</file>
-            <file>file:/C:/Users/PC/Documents/NetBeansProjects/WebCuaHangDen/web/layouts/header_user.jsp</file>
-            <file>file:/C:/Users/PC/Documents/NetBeansProjects/WebCuaHangDen/web/elements/UserProduct.jsp</file>
-            <file>file:/C:/Users/PC/Documents/NetBeansProjects/WebCuaHangDen/web/elements/Cart.jsp</file>
-            <file>file:/C:/Users/PC/Documents/NetBeansProjects/WebCuaHangDen/src/java/Controller/UserLoginServlet.java</file>
-            <file>file:/C:/Users/PC/Documents/NetBeansProjects/WebCuaHangDen/src/java/Model/LoaiDen.java</file>
-            <file>file:/C:/Users/PC/Documents/NetBeansProjects/WebCuaHangDen/src/java/Controller/UserManagerServlet.java</file>
-        </group>
+        <group/>
     </open-files>
 </project-private>

@@ -1,10 +1,47 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="Model.Den" %>
+<%@ page import="Model.LoaiDen" %>
+<%@ page import="DAO.DenDAO" %>
+<%@ page import="DAO.LoaiDenDAO" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="java.text.NumberFormat" %>
+<%@ page import="java.util.Locale" %>
 <%@ include file="/layouts/header_user.jsp" %>
+<%
+    // Lấy dữ liệu từ servlet
+    List<LoaiDen> categories = (List<LoaiDen>) request.getAttribute("categories");
+    Map<Integer, Integer> categoryProductCount = (Map<Integer, Integer>) request.getAttribute("categoryProductCount");
+    List<Den> featuredProducts = (List<Den>) request.getAttribute("featuredProducts");
+    List<Den> newestProducts = (List<Den>) request.getAttribute("newestProducts");
+    List<Den> bestSellingProducts = (List<Den>) request.getAttribute("bestSellingProducts");
+    Integer totalProducts = (Integer) request.getAttribute("totalProducts");
+    
+    // Nếu không có dữ liệu từ servlet, tự động load
+    if (categories == null || featuredProducts == null) {
+        DenDAO denDAO = new DenDAO();
+        LoaiDenDAO loaiDenDAO = new LoaiDenDAO();
+        
+        categories = loaiDenDAO.getAll();
+        categoryProductCount = new java.util.HashMap<>();
+        for (LoaiDen cat : categories) {
+            categoryProductCount.put(cat.getMaLoai(), loaiDenDAO.countProductsByCategory(cat.getMaLoai()));
+        }
+        featuredProducts = denDAO.getFeaturedProducts(8);
+        newestProducts = denDAO.getNewestProducts(8);
+        bestSellingProducts = denDAO.getBestSellingProducts(8);
+        totalProducts = denDAO.countSearchAndFilter(null, null, null, null);
+    }
+    
+    // Format số tiền
+    NumberFormat nf = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
+%>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <title>Trang chủ | LightStore - Cửa hàng đèn trang trí cao cấp</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background:#f8f9fa; color:#333; }
@@ -95,6 +132,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
             transition: 0.4s;
             position: relative;
+            cursor: pointer;
         }
         .product-card:hover {
             transform: translateY(-10px);
@@ -103,6 +141,7 @@
         .product-img {
             height: 280px;
             overflow: hidden;
+            position: relative;
         }
         .product-img img {
             width: 100%;
@@ -111,7 +150,7 @@
             transition: 0.5s;
         }
         .product-card:hover .product-img img { transform: scale(1.1); }
-
+        
         .product-info {
             padding: 20px;
             text-align: center;
@@ -120,6 +159,11 @@
             font-size: 18px;
             margin-bottom: 10px;
             color: #333;
+            height: 50px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
         }
         .price {
             font-size: 22px;
@@ -147,6 +191,7 @@
         }
         .badge.new { background:#27ae60; }
         .badge.sale { background:#e67e22; }
+        .badge.hot { background:#e74c3c; }
         
         .add-to-cart {
             background: #1a1a1a;
@@ -213,6 +258,9 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
             transition: 0.4s;
             position: relative;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
         }
         .category-card:hover {
             transform: translateY(-5px);
@@ -221,14 +269,13 @@
         .category-img {
             height: 200px;
             overflow: hidden;
+            background: linear-gradient(135deg, #ffd700, #ffa500);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 64px;
         }
-        .category-img img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: 0.5s;
-        }
-        .category-card:hover .category-img img { transform: scale(1.1); }
         .category-info {
             padding: 20px;
             text-align: center;
@@ -237,6 +284,10 @@
             font-size: 20px;
             margin-bottom: 10px;
             color: #333;
+        }
+        .category-info p {
+            color: #666;
+            font-size: 14px;
         }
         
         /* ===== STATS ===== */
@@ -262,6 +313,20 @@
         .stat-item p {
             font-size: 18px;
             opacity: 0.9;
+        }
+        
+        /* ===== PRODUCTS SECTION ===== */
+        .products-section {
+            padding: 40px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 36px; }
+            .hero h1 span { font-size: 48px; }
+            .hero p { font-size: 16px; }
+            .section-title { font-size: 28px; }
+            .product-container { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+            .category-container { grid-template-columns: 1fr; }
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
@@ -307,42 +372,24 @@
     <section class="categories">
         <h2 class="section-title">Danh mục sản phẩm</h2>
         <div class="category-container">
-            <div class="category-card">
-                <div class="category-img">
-                    <img src="https://images.unsplash.com/photo-1581094794329-c4ebef0956e9?w=600" alt="Đèn thả trần">
-                </div>
-                <div class="category-info">
-                    <h3>Đèn thả trần</h3>
-                    <p>25+ sản phẩm</p>
-                </div>
-            </div>
-            <div class="category-card">
-                <div class="category-img">
-                    <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600" alt="Đèn bàn">
-                </div>
-                <div class="category-info">
-                    <h3>Đèn bàn</h3>
-                    <p>18+ sản phẩm</p>
-                </div>
-            </div>
-            <div class="category-card">
-                <div class="category-img">
-                    <img src="https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=600" alt="Đèn tường">
-                </div>
-                <div class="category-info">
-                    <h3>Đèn tường</h3>
-                    <p>22+ sản phẩm</p>
-                </div>
-            </div>
-            <div class="category-card">
-                <div class="category-img">
-                    <img src="https://images.unsplash.com/photo-1581094794329-c4ebef0956e9?w=600" alt="Đèn sàn">
-                </div>
-                <div class="category-info">
-                    <h3>Đèn sàn</h3>
-                    <p>15+ sản phẩm</p>
-                </div>
-            </div>
+            <% if (categories != null && !categories.isEmpty()) { %>
+                <% for (LoaiDen category : categories) { 
+                    int productCount = categoryProductCount != null && categoryProductCount.containsKey(category.getMaLoai()) 
+                        ? categoryProductCount.get(category.getMaLoai()) : 0;
+                %>
+                <a href="${pageContext.request.contextPath}/UserProductServlet?category=<%= category.getMaLoai() %>" class="category-card">
+                    <div class="category-img">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <div class="category-info">
+                        <h3><%= category.getTenLoai() %></h3>
+                        <p><%= productCount %>+ sản phẩm</p>
+                    </div>
+                </a>
+                <% } %>
+            <% } else { %>
+                <p style="text-align: center; width: 100%; padding: 40px; color: #666;">Chưa có danh mục sản phẩm</p>
+            <% } %>
         </div>
     </section>
 
@@ -350,51 +397,36 @@
     <section class="products-section" id="featured-products">
         <h2 class="section-title">Sản phẩm nổi bật</h2>
         <div class="product-container">
-            <div class="product-card">
-                <span class="badge sale">-25%</span>
-                <div class="product-img">
-                    <img src="https://images.unsplash.com/photo-1598300041005-7e7c9037e3e7?w=600" alt="Đèn thả trần pha lê">
+            <% if (featuredProducts != null && !featuredProducts.isEmpty()) { %>
+                <% for (Den product : featuredProducts) { 
+                    String imagePath = "assets/images/product/den_tran.png"; // Fallback mặc định
+                    String hinhAnh = product.getHinhAnh();
+                    if (hinhAnh != null && !hinhAnh.trim().isEmpty()) {
+                        hinhAnh = hinhAnh.trim();
+                        // Tên file đã không có dấu, không cần encode
+                        imagePath = "assets/images/product/" + hinhAnh;
+                    }
+                %>
+                <div class="product-card" onclick="viewProduct(<%= product.getMaDen() %>)">
+                    <span class="badge hot">Nổi bật</span>
+                    <div class="product-img">
+                        <img src="${pageContext.request.contextPath}/<%= imagePath %>" 
+                             alt="<%= product.getTenDen() %>" 
+                             onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<div style=\\'width:100%;height:280px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;color:#999;\\'><i class=\\'fas fa-image\\'></i> Không có ảnh</div>';"
+                             loading="lazy">
+                    </div>
+                    <div class="product-info">
+                        <h3><%= product.getTenDen() %></h3>
+                        <p class="price"><%= nf.format(product.getGia()) %>đ</p>
+                        <button class="add-to-cart" onclick="event.stopPropagation(); addToCart(<%= product.getMaDen() %>, 1);">
+                            <i class="fas fa-shopping-cart"></i> Thêm vào giỏ hàng
+                        </button>
+                    </div>
                 </div>
-                <div class="product-info">
-                    <h3>Đèn thả trần pha lê Royal</h3>
-                    <p class="price">2.850.000đ <span class="old-price">3.800.000đ</span></p>
-                    <button class="add-to-cart">Thêm vào giỏ hàng</button>
-                </div>
-            </div>
-
-            <div class="product-card">
-                <div class="product-img">
-                    <img src="https://images.unsplash.com/photo-1585060722534-1d044f4f39c4?w=600" alt="Đèn bàn ngủ">
-                </div>
-                <div class="product-info">
-                    <h3>Đèn bàn ngủ Nordic Moon</h3>
-                    <p class="price">890.000đ</p>
-                    <button class="add-to-cart">Thêm vào giỏ hàng</button>
-                </div>
-            </div>
-
-            <div class="product-card">
-                <span class="badge new">Mới</span>
-                <div class="product-img">
-                    <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600" alt="Đèn LED thông minh">
-                </div>
-                <div class="product-info">
-                    <h3>Đèn LED thông minh RGB</h3>
-                    <p class="price">1.290.000đ</p>
-                    <button class="add-to-cart">Thêm vào giỏ hàng</button>
-                </div>
-            </div>
-
-            <div class="product-card">
-                <div class="product-img">
-                    <img src="https://images.unsplash.com/photo-1615529193722-2e0e6e6d7f6f?w=600" alt="Đèn tường nghệ thuật">
-                </div>
-                <div class="product-info">
-                    <h3>Đèn tường nghệ thuật Feather</h3>
-                    <p class="price">1.650.000đ</p>
-                    <button class="add-to-cart">Thêm vào giỏ hàng</button>
-                </div>
-            </div>
+                <% } %>
+            <% } else { %>
+                <p style="text-align: center; width: 100%; padding: 40px; color: #666;">Chưa có sản phẩm nổi bật</p>
+            <% } %>
         </div>
     </section>
 
@@ -402,105 +434,67 @@
     <section class="products-section" style="background:#f5f5f5; padding-top:40px;">
         <h2 class="section-title">Sản phẩm mới</h2>
         <div class="product-container">
-            <div class="product-card">
-                <span class="badge new">Mới</span>
-                <div class="product-img">
-                    <img src="https://images.unsplash.com/photo-1591605182416-7bf5c10c3b7b?w=600" alt="Đèn chùm hiện đại">
+            <% if (newestProducts != null && !newestProducts.isEmpty()) { %>
+                <% for (Den product : newestProducts) { 
+                    String imagePath = "assets/images/no-image.jpg";
+                    if (product.getHinhAnh() != null && !product.getHinhAnh().trim().isEmpty()) {
+                        imagePath = "assets/images/product/" + product.getHinhAnh();
+                    }
+                %>
+                <div class="product-card" onclick="viewProduct(<%= product.getMaDen() %>)">
+                    <span class="badge new">Mới</span>
+                    <div class="product-img">
+                        <img src="${pageContext.request.contextPath}/<%= imagePath %>" 
+                             alt="<%= product.getTenDen() %>" 
+                             onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<div style=\\'width:100%;height:280px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;color:#999;\\'><i class=\\'fas fa-image\\'></i> Không có ảnh</div>';"
+                             loading="lazy">
+                    </div>
+                    <div class="product-info">
+                        <h3><%= product.getTenDen() %></h3>
+                        <p class="price"><%= nf.format(product.getGia()) %>đ</p>
+                        <button class="add-to-cart" onclick="event.stopPropagation(); addToCart(<%= product.getMaDen() %>, 1);">
+                            <i class="fas fa-shopping-cart"></i> Thêm vào giỏ hàng
+                        </button>
+                    </div>
                 </div>
-                <div class="product-info">
-                    <h3>Đèn chùm hiện đại Crystal Wave</h3>
-                    <p class="price">5.600.000đ</p>
-                    <button class="add-to-cart">Thêm vào giỏ hàng</button>
-                </div>
-            </div>
-
-            <div class="product-card">
-                <span class="badge new">Mới</span>
-                <div class="product-img">
-                    <img src="https://images.unsplash.com/photo-1615529182850-9e6e7d6d9e9e?w=600" alt="Đèn sàn đứng">
-                </div>
-                <div class="product-info">
-                    <h3>Đèn sàn đứng Luxury Gold</h3>
-                    <p class="price">3.950.000đ</p>
-                    <button class="add-to-cart">Thêm vào giỏ hàng</button>
-                </div>
-            </div>
-
-            <div class="product-card">
-                <div class="product-img">
-                    <img src="https://images.unsplash.com/photo-1600585154363-67eb9e2f8241?w=600" alt="Đèn ngủ cảm ứng">
-                </div>
-                <div class="product-info">
-                    <h3>Đèn ngủ cảm ứng Touch Light</h3>
-                    <p class="price">620.000đ</p>
-                    <button class="add-to-cart">Thêm vào giỏ hàng</button>
-                </div>
-            </div>
-
-            <div class="product-card">
-                <div class="product-img">
-                    <img src="https://images.unsplash.com/photo-1615874954595-3cb80b9252ed?w=600" alt="Đèn trang trí vườn">
-                </div>
-                <div class="product-info">
-                    <h3>Đèn năng lượng mặt trời sân vườn</h3>
-                    <p class="price">1.180.000đ</p>
-                    <button class="add-to-cart">Thêm vào giỏ hàng</button>
-                </div>
-            </div>
+                <% } %>
+            <% } else { %>
+                <p style="text-align: center; width: 100%; padding: 40px; color: #666;">Chưa có sản phẩm mới</p>
+            <% } %>
         </div>
     </section>
 
-    <!-- KHUYẾN MÃI -->
+    <!-- SẢN PHẨM BÁN CHẠY -->
     <section class="products-section">
-        <h2 class="section-title">Khuyến mãi hot</h2>
+        <h2 class="section-title">Sản phẩm bán chạy</h2>
         <div class="product-container">
-            <div class="product-card">
-                <span class="badge sale">-40%</span>
-                <div class="product-img">
-                    <img src="https://images.unsplash.com/photo-1598300059553-4048c29d85e8?w=600" alt="Bộ đèn trang trí phòng khách">
+            <% if (bestSellingProducts != null && !bestSellingProducts.isEmpty()) { %>
+                <% for (Den product : bestSellingProducts) { 
+                    String imagePath = "assets/images/no-image.jpg";
+                    if (product.getHinhAnh() != null && !product.getHinhAnh().trim().isEmpty()) {
+                        imagePath = "assets/images/product/" + product.getHinhAnh();
+                    }
+                %>
+                <div class="product-card" onclick="viewProduct(<%= product.getMaDen() %>)">
+                    <span class="badge sale">Bán chạy</span>
+                    <div class="product-img">
+                        <img src="${pageContext.request.contextPath}/<%= imagePath %>" 
+                             alt="<%= product.getTenDen() %>" 
+                             onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<div style=\\'width:100%;height:280px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;color:#999;\\'><i class=\\'fas fa-image\\'></i> Không có ảnh</div>';"
+                             loading="lazy">
+                    </div>
+                    <div class="product-info">
+                        <h3><%= product.getTenDen() %></h3>
+                        <p class="price"><%= nf.format(product.getGia()) %>đ</p>
+                        <button class="add-to-cart" onclick="event.stopPropagation(); addToCart(<%= product.getMaDen() %>, 1);">
+                            <i class="fas fa-shopping-cart"></i> Thêm vào giỏ hàng
+                        </button>
+                    </div>
                 </div>
-                <div class="product-info">
-                    <h3>Bộ đèn phòng khách 5 món</h3>
-                    <p class="price">8.900.000đ <span class="old-price">14.800.000đ</span></p>
-                    <button class="add-to-cart">Thêm vào giỏ hàng</button>
-                </div>
-            </div>
-
-            <div class="product-card">
-                <span class="badge sale">-30%</span>
-                <div class="product-img">
-                    <img src="https://images.unsplash.com/photo-1618220048045-10a6dbdf2e3e?w=600" alt="Đèn thả bàn ăn">
-                </div>
-                <div class="product-info">
-                    <h3>Đèn thả bàn ăn Luxury Line</h3>
-                    <p class="price">2.450.000đ <span class="old-price">3.500.000đ</span></p>
-                    <button class="add-to-cart">Thêm vào giỏ hàng</button>
-                </div>
-            </div>
-
-            <div class="product-card">
-                <span class="badge sale">-20%</span>
-                <div class="product-img">
-                    <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600" alt="Đèn LED dây">
-                </div>
-                <div class="product-info">
-                    <h3>Đèn LED dây 10m đổi màu</h3>
-                    <p class="price">399.000đ <span class="old-price">499.000đ</span></p>
-                    <button class="add-to-cart">Thêm vào giỏ hàng</button>
-                </div>
-            </div>
-
-            <div class="product-card">
-                <span class="badge sale">-35%</span>
-                <div class="product-img">
-                    <img src="https://images.unsplash.com/photo-1591605182416-7bf5c10c3b7b?w=600" alt="Đèn chùm phòng ngủ">
-                </div>
-                <div class="product-info">
-                    <h3>Đèn chùm phòng ngủ Dream</h3>
-                    <p class="price">3.250.000đ <span class="old-price">5.000.000đ</span></p>
-                    <button class="add-to-cart">Thêm vào giỏ hàng</button>
-                </div>
-            </div>
+                <% } %>
+            <% } else { %>
+                <p style="text-align: center; width: 100%; padding: 40px; color: #666;">Chưa có sản phẩm bán chạy</p>
+            <% } %>
         </div>
     </section>
 
@@ -508,7 +502,7 @@
     <section class="stats">
         <div class="stats-container">
             <div class="stat-item">
-                <h2>500+</h2>
+                <h2><%= totalProducts != null ? totalProducts : 0 %>+</h2>
                 <p>Sản phẩm đa dạng</p>
             </div>
             <div class="stat-item">
@@ -529,26 +523,43 @@
 <%@ include file="/layouts/footer_user.jsp" %>
 
 <script>
-    // Xử lý thêm vào giỏ hàng
-    document.querySelectorAll('.add-to-cart').forEach(button => {
-        button.addEventListener('click', function() {
-            const productName = this.parentElement.querySelector('h3').textContent;
-            // Kiểm tra đăng nhập trước khi thêm vào giỏ
-            checkLoginBeforeAddToCart(null, 1);
-        });
-    });
+    function viewProduct(maDen) {
+        window.location.href = '${pageContext.request.contextPath}/ItemDetailServlet?maDen=' + maDen;
+    }
     
-    // Hàm kiểm tra đăng nhập trước khi thêm vào giỏ hàng
-    function checkLoginBeforeAddToCart(productId, quantity) {
-        // Tạm thời bỏ qua vì userHome.jsp chưa có product ID thật
-        // Có thể thêm data-product-id vào các button sau
-        if (!productId) {
-            alert('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!');
-            if (confirm('Bạn có muốn chuyển đến trang đăng nhập?')) {
+    function addToCart(maDen, quantity) {
+        <% if (user == null) { %>
+            if (confirm('Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng. Bạn có muốn chuyển đến trang đăng nhập?')) {
                 window.location.href = '${pageContext.request.contextPath}/View/userLogin.jsp?returnUrl=' + encodeURIComponent(window.location.href);
             }
             return;
-        }
+        <% } %>
+        
+        // Gọi API thêm vào giỏ hàng
+        fetch('${pageContext.request.contextPath}/CartServlet', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'action=add&maDen=' + maDen + '&quantity=' + quantity
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Hiển thị thông báo
+                alert('Đã thêm sản phẩm vào giỏ hàng!');
+                // Cập nhật số lượng trong giỏ hàng nếu có hàm updateCartCount
+                if (typeof updateCartCount === 'function') {
+                    updateCartCount();
+                }
+            } else {
+                alert('Có lỗi xảy ra: ' + (data.message || 'Vui lòng thử lại'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng');
+        });
     }
 </script>
 

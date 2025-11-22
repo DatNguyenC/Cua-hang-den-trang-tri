@@ -374,6 +374,7 @@
             height: 250px;
             object-fit: cover;
             background: #f0f0f0;
+            display: block;
         }
         
         .product-info {
@@ -468,6 +469,9 @@
         .product-item-list .product-image {
             height: 200px;
             width: 100%;
+            object-fit: cover;
+            background: #f0f0f0;
+            display: block;
         }
         
         .product-item-list .product-info {
@@ -667,13 +671,19 @@
                     <% for (Den product : products) { %>
                     <div class="product-card" onclick="viewProduct(<%= product.getMaDen() %>)">
                         <%
-                            String imagePath = "assets/images/no-image.jpg";
-                            if (product.getHinhAnh() != null && !product.getHinhAnh().trim().isEmpty()) {
-                                imagePath = "assets/images/product/" + product.getHinhAnh();
+                            String imagePath = "assets/images/product/den_tran.png"; // Fallback mặc định
+                            String hinhAnh = product.getHinhAnh();
+                            if (hinhAnh != null && !hinhAnh.trim().isEmpty()) {
+                                hinhAnh = hinhAnh.trim();
+                                // Tên file đã không có dấu, không cần encode
+                                imagePath = "assets/images/product/" + hinhAnh;
                             }
                         %>
                         <img src="${pageContext.request.contextPath}/<%= imagePath %>" 
-                             alt="<%= product.getTenDen() %>" class="product-image">
+                             alt="<%= product.getTenDen() != null ? product.getTenDen() : "Sản phẩm" %>" 
+                             class="product-image"
+                             onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<div style=\\'width:100%;height:250px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;color:#999;\\'><i class=\\'fas fa-image\\'></i> Không có ảnh</div>';"
+                             loading="lazy">
                         <div class="product-info">
                             <div class="product-category">
                                 <% 
@@ -708,13 +718,19 @@
                     <% for (Den product : products) { %>
                     <div class="product-item-list" onclick="viewProduct(<%= product.getMaDen() %>)">
                         <%
-                            String imagePath = "assets/images/no-image.jpg";
-                            if (product.getHinhAnh() != null && !product.getHinhAnh().trim().isEmpty()) {
-                                imagePath = "assets/images/product/" + product.getHinhAnh();
+                            String imagePath = "assets/images/product/den_tran.png"; // Fallback mặc định
+                            String hinhAnh = product.getHinhAnh();
+                            if (hinhAnh != null && !hinhAnh.trim().isEmpty()) {
+                                hinhAnh = hinhAnh.trim();
+                                // Tên file đã không có dấu, không cần encode
+                                imagePath = "assets/images/product/" + hinhAnh;
                             }
                         %>
                         <img src="${pageContext.request.contextPath}/<%= imagePath %>" 
-                             alt="<%= product.getTenDen() %>" class="product-image">
+                             alt="<%= product.getTenDen() != null ? product.getTenDen() : "Sản phẩm" %>" 
+                             class="product-image"
+                             onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<div style=\\'width:100%;height:250px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;color:#999;\\'><i class=\\'fas fa-image\\'></i> Không có ảnh</div>';"
+                             loading="lazy">
                         <div class="product-info">
                             <div class="product-category">
                                 <% 

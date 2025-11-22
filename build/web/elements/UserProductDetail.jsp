@@ -24,9 +24,12 @@
     if (variantStock == null) variantStock = new HashMap<>();
     if (relatedProducts == null) relatedProducts = new ArrayList<>();
     
-    String imagePath = "assets/images/no-image.jpg";
-    if (product.getHinhAnh() != null && !product.getHinhAnh().trim().isEmpty()) {
-        imagePath = "assets/images/product/" + product.getHinhAnh();
+    String imagePath = "assets/images/product/den_tran.png"; // Fallback mặc định
+    String hinhAnh = product.getHinhAnh();
+    if (hinhAnh != null && !hinhAnh.trim().isEmpty()) {
+        hinhAnh = hinhAnh.trim();
+        // Tên file đã không có dấu, không cần encode
+        imagePath = "assets/images/product/" + hinhAnh;
     }
 %>
 <!DOCTYPE html>
@@ -473,12 +476,14 @@
                      alt="<%= product.getTenDen() %>" 
                      class="main-image" 
                      id="mainImage"
-                     onclick="zoomImage(this)">
+                     onclick="zoomImage(this)"
+                     onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<div style=\\'width:100%;height:600px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;color:#999;font-size:18px;\\'><i class=\\'fas fa-image\\' style=\\'font-size:48px;margin-bottom:10px;display:block;\\'></i> Không có ảnh</div>';">
                 <div class="thumbnail-images">
                     <img src="${pageContext.request.contextPath}/<%= imagePath %>" 
                          alt="<%= product.getTenDen() %>" 
                          class="thumbnail active"
-                         onclick="changeMainImage(this.src)">
+                         onclick="changeMainImage(this.src)"
+                         onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<div style=\\'width:100px;height:100px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;color:#999;\\'><i class=\\'fas fa-image\\'></i></div>';">
                     <!-- Có thể thêm thêm thumbnail nếu có nhiều ảnh -->
                 </div>
             </div>
@@ -654,13 +659,18 @@
             <h2 class="section-title">Sản phẩm liên quan</h2>
             <div class="related-grid">
                 <% for (Den related : relatedProducts) { 
-                    String relatedImagePath = "assets/images/no-image.jpg";
-                    if (related.getHinhAnh() != null && !related.getHinhAnh().trim().isEmpty()) {
-                        relatedImagePath = "assets/images/product/" + related.getHinhAnh();
+                    String relatedImagePath = "assets/images/product/den_tran.png"; // Fallback mặc định
+                    String relatedHinhAnh = related.getHinhAnh();
+                    if (relatedHinhAnh != null && !relatedHinhAnh.trim().isEmpty()) {
+                        relatedHinhAnh = relatedHinhAnh.trim();
+                        // Tên file đã không có dấu, không cần encode
+                        relatedImagePath = "assets/images/product/" + relatedHinhAnh;
                     }
                 %>
                 <div class="related-card" onclick="viewProduct(<%= related.getMaDen() %>)">
-                    <img src="${pageContext.request.contextPath}/<%= relatedImagePath %>" alt="<%= related.getTenDen() %>">
+                    <img src="${pageContext.request.contextPath}/<%= relatedImagePath %>" 
+                         alt="<%= related.getTenDen() %>"
+                         onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<div style=\\'width:100%;height:200px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;color:#999;\\'><i class=\\'fas fa-image\\'></i></div>';">
                     <div class="related-card-info">
                         <div class="related-card-title"><%= related.getTenDen() %></div>
                         <div class="related-card-price"><%= nf.format(related.getGia()) %></div>

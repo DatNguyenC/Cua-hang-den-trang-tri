@@ -480,15 +480,15 @@
         }
         
         function viewAccount() {
-            window.location.href = '${pageContext.request.contextPath}/user-account';
+            window.location.href = '${pageContext.request.contextPath}/UserAccountServlet';
         }
         
         function changePassword() {
-            window.location.href = '${pageContext.request.contextPath}/change-password';
+            window.location.href = '${pageContext.request.contextPath}/UserChangePasswordServlet';
         }
         
         function viewOrders() {
-            window.location.href = '${pageContext.request.contextPath}/my-orders';
+            window.location.href = '${pageContext.request.contextPath}/MyOrderServlet';
         }
         
         // Đóng dropdown khi click ra ngoài
@@ -575,7 +575,7 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="#" class="dropdown-item" onclick="viewOrders()">
+                                    <a href="${pageContext.request.contextPath}/MyOrderServlet" class="dropdown-item">
                                         <i class="fas fa-shopping-bag"></i>
                                         <span>Đơn hàng của tôi</span>
                                     </a>

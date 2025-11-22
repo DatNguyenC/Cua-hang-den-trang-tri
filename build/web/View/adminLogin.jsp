@@ -1,467 +1,456 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<!doctype html>
-<html lang="en" data-pc-preset="preset-1" data-pc-sidebar-caption="true" data-pc-direction="ltr" dir="ltr" data-pc-theme="light">
-    <head>
-        <title>Đăng nhập / Đăng ký | LightStore Admin</title>
-        <meta charset="utf-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui"/>
-        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập Admin - LightShop</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-        <style>
-            /* ===== VARIABLES ===== */
-            :root {
-                --primary-color: #3f4d67;
-                --primary-light: #53668a;
-                --primary-dark: #2c384d;
-                --accent-color: #6b7fa5;
-                --text-primary: #333333;
-                --text-secondary: #666666;
-                --bg-light: #f8f9fa;
-                --bg-white: #ffffff;
-                --border-color: #e0e0e0;
-                --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-                --transition: all 0.3s ease;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            bottom: -50%;
+            left: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+            animation: float 25s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(30px, -30px) rotate(180deg); }
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .login-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        }
+
+        .login-logo i {
+            font-size: 40px;
+            color: #fff;
+        }
+
+        .login-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .login-subtitle {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 16px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 16px 14px 48px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.2s;
+            background: #fff;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-control::placeholder {
+            color: #cbd5e1;
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+
+        .form-check {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-check-input {
+            width: 18px;
+            height: 18px;
+            accent-color: #3b82f6;
+            cursor: pointer;
+        }
+
+        .form-check-label {
+            color: #64748b;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .forgot-link {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .forgot-link:hover {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid #dc2626;
+        }
+
+        .error-message i {
+            font-size: 18px;
+        }
+
+        .toggle-container {
+            text-align: center;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .toggle-link {
+            color: #3b82f6;
+            font-weight: 600;
+            cursor: pointer;
+            margin-left: 6px;
+            transition: color 0.2s;
+        }
+
+        .toggle-link:hover {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+
+        .auth-card {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .auth-card.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .grid-cols-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        @media (max-width: 768px) {
+            .login-card {
+                padding: 32px 24px;
             }
-            
-            /* ===== RESET & BASE STYLES ===== */
-            body {
-                font-family: 'Open Sans', sans-serif;
-                background-color: var(--bg-light);
-                margin: 0;
-                padding: 0;
-                color: var(--text-primary);
+
+            .login-title {
+                font-size: 24px;
             }
-            
-            /* ===== AUTH WRAPPER ===== */
-            .auth-main {
-                min-height: 100vh;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                position: relative;
-                overflow: hidden;
-            }
-            
-            .auth-wrapper {
-                width: 100%;
-                max-width: 1200px;
-                margin: 0 auto;
-                display: flex;
-                min-height: 100vh;
-            }
-            
-            .auth-bg-overlay {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: linear-gradient(135deg, rgba(63, 77, 103, 0.05) 0%, rgba(83, 102, 138, 0.05) 100%);
-                z-index: -1;
-            }
-            
-            .auth-bg-light {
-                position: absolute;
-                width: 300px;
-                height: 300px;
-                border-radius: 50%;
-                background: radial-gradient(circle, var(--primary-light) 0%, transparent 70%);
-                opacity: 0.15;
-                filter: blur(40px);
-                z-index: -1;
-            }
-            
-            .auth-bg-light:nth-child(1) {
-                top: -150px;
-                right: -150px;
-            }
-            
-            .auth-bg-light:nth-child(2) {
-                bottom: -150px;
-                left: -150px;
-                background: radial-gradient(circle, var(--accent-color) 0%, transparent 70%);
-            }
-            
-            /* ===== FORM CONTAINER ===== */
-            .auth-form {
-                flex: 1;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 2rem;
-                position: relative;
-            }
-            
-            .auth-card {
-                background-color: var(--bg-white);
-                border-radius: 16px;
-                box-shadow: var(--shadow);
-                padding: 2.5rem;
-                width: 100%;
-                max-width: 400px;
-                position: relative;
-                overflow: hidden;
-                transition: var(--transition);
-                opacity: 0;
-                transform: translateY(20px);
-                transition: opacity 0.5s ease, transform 0.5s ease, visibility 0s 0.5s;
-                visibility: hidden;
-                position: absolute;
-            }
-            
-            .auth-card.active {
-                opacity: 1;
-                transform: translateY(0);
-                visibility: visible;
-                transition: opacity 0.5s ease, transform 0.5s ease;
-                position: relative;
-            }
-            
-            .auth-card:hover {
-                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-            }
-            
-            .auth-card::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 4px;
-                background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
-            }
-            
-            /* ===== LOGO & HEADINGS ===== */
-            .auth-logo {
-                max-width: 180px;
-                margin-bottom: 1.5rem;
-            }
-            
-            .auth-title {
-                font-size: 1.75rem;
-                font-weight: 600;
-                text-align: center;
-                margin-bottom: 0.5rem;
-                color: var(--text-primary);
-            }
-            
-            .auth-subtitle {
-                text-align: center;
-                color: var(--text-secondary);
-                margin-bottom: 2rem;
-                font-size: 0.95rem;
-            }
-            
-            /* ===== FORM ELEMENTS ===== */
-            .form-group {
-                margin-bottom: 1.5rem;
-            }
-            
-            .form-label {
-                display: block;
-                margin-bottom: 0.5rem;
-                font-weight: 500;
-                color: var(--text-primary);
-                font-size: 0.9rem;
-            }
-            
-            .form-control {
-                width: 100%;
-                padding: 0.75rem 1rem;
-                border: 1px solid var(--border-color);
-                border-radius: 8px;
-                font-size: 1rem;
-                transition: var(--transition);
-                background-color: var(--bg-white);
-                box-sizing: border-box;
-            }
-            
-            .form-control:focus {
-                outline: none;
-                border-color: var(--primary-color);
-                box-shadow: 0 0 0 3px rgba(63, 77, 103, 0.1);
-            }
-            
-            .form-control::placeholder {
-                color: #aaa;
-            }
-            
-            /* ===== CHECKBOX & REMEMBER ME ===== */
-            .form-check {
-                display: flex;
-                align-items: center;
-                margin-bottom: 1rem;
-            }
-            
-            .form-check-input {
-                margin-right: 0.5rem;
-                accent-color: var(--primary-color);
-            }
-            
-            .form-check-label {
-                font-size: 0.9rem;
-                color: var(--text-secondary);
-            }
-            
-            .forgot-link {
-                color: var(--primary-color);
-                text-decoration: none;
-                font-size: 0.9rem;
-                transition: var(--transition);
-            }
-            
-            .forgot-link:hover {
-                color: var(--primary-dark);
-                text-decoration: underline;
-            }
-            
-            /* ===== BUTTONS ===== */
-            .btn {
-                display: inline-block;
-                padding: 0.75rem 1.5rem;
-                border: none;
-                border-radius: 8px;
-                font-weight: 600;
-                font-size: 1rem;
-                cursor: pointer;
-                transition: var(--transition);
-                text-align: center;
-                width: 100%;
-            }
-            
-            .btn-primary {
-                background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-                color: white;
-                box-shadow: 0 4px 12px rgba(63, 77, 103, 0.3);
-            }
-            
-            .btn-primary:hover {
-                background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
-                box-shadow: 0 6px 16px rgba(63, 77, 103, 0.4);
-                transform: translateY(-2px);
-            }
-            
-            .btn-primary:active {
-                transform: translateY(0);
-            }
-            
-            /* ===== TOGGLE LINK ===== */
-            .toggle-container {
-                text-align: center;
-                margin-top: 1.5rem;
-                font-size: 0.9rem;
-                color: var(--text-secondary);
-            }
-            
-            .toggle-link {
-                color: var(--primary-color);
-                cursor: pointer;
-                font-weight: 600;
-                transition: var(--transition);
-                margin-left: 0.5rem;
-            }
-            
-            .toggle-link:hover {
-                color: var(--primary-dark);
-                text-decoration: underline;
-            }
-            
-            /* ===== ERROR MESSAGE ===== */
-            .error-message {
-                background-color: rgba(244, 67, 54, 0.1);
-                color: #f44336;
-                padding: 0.75rem 1rem;
-                border-radius: 8px;
-                margin-bottom: 1.5rem;
-                text-align: center;
-                font-size: 0.9rem;
-                border-left: 4px solid #f44336;
-            }
-            
-            /* ===== GRID LAYOUT ===== */
-            .grid {
-                display: grid;
-                gap: 1rem;
-            }
-            
+
             .grid-cols-2 {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: 1fr;
             }
-            
-            /* ===== UTILITY CLASSES ===== */
-            .hidden {
-                display: none;
-            }
-            
-            .text-center {
-                text-align: center;
-            }
-            
-            .flex-between {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-            
-            .mt-4 {
-                margin-top: 1.5rem;
-            }
-            
-            /* ===== RESPONSIVE DESIGN ===== */
-            @media (max-width: 768px) {
-                .auth-card {
-                    padding: 2rem 1.5rem;
-                }
-                
-                .grid-cols-2 {
-                    grid-template-columns: 1fr;
-                }
-                
-                .auth-title {
-                    font-size: 1.5rem;
-                }
-            }
-            
-            @media (max-width: 480px) {
-                .auth-form {
-                    padding: 1rem;
-                }
-                
-                .auth-card {
-                    padding: 1.5rem 1rem;
-                }
-            }
-        </style>
-    </head>
+        }
+    </style>
+</head>
+<body>
+    <%
+        Boolean showRegister = (Boolean) request.getAttribute("showRegister");
+        String registerError = (String) request.getAttribute("registerError");
+    %>
 
-    <body>
-        <%
-            Boolean showRegister = (Boolean) request.getAttribute("showRegister");
-            String registerError = (String) request.getAttribute("registerError");
-        %>
-        <!-- [Preloader] -->
-        <div class="loader-bg fixed inset-0 bg-white dark:bg-themedark-cardbg z-[1034]">
-            <div class="loader-track h-[5px] w-full inline-block absolute overflow-hidden top-0">
-                <div class="loader-fill w-[300px] h-[5px] bg-primary-500 absolute top-0 left-0 animate-[hitZak_0.6s_ease-in-out_infinite_alternate]"></div>
-            </div>
-        </div>
+    <div class="login-container">
+        <!-- FORM LOGIN -->
+        <div id="loginForm" class="auth-card active">
+            <div class="login-card">
+                <div class="login-header">
+                    <div class="login-logo">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <h1 class="login-title">Đăng nhập Admin</h1>
+                    <p class="login-subtitle">Chào mừng trở lại với LightShop</p>
+                </div>
 
-        <!-- [Main] -->
-        <div class="auth-main">
-            <div class="auth-wrapper">
-                <div class="auth-bg-overlay"></div>
-                <div class="auth-bg-light"></div>
-                <div class="auth-bg-light"></div>
-                
-                <div class="auth-form">
-                    <!-- ========== FORM LOGIN ========== -->
-                    <div id="loginForm" class="auth-card active">
-                        <div class="text-center mb-6">
-                            <a href="#"><img src="${pageContext.request.contextPath}/assets/images/logo-dark.svg" alt="logo" class="auth-logo"/></a>
-                        </div>
-                        <h2 class="auth-title">Đăng nhập</h2>
-                        <p class="auth-subtitle">Chào mừng trở lại với LightStore Admin</p>
-                        
-                        <!-- Hiển thị lỗi -->
-                        <%
-                            String error = (String) request.getAttribute("error");
-                            if (error != null) {
-                        %>
-                        <div class="error-message">
-                            <%= error%>
-                        </div>
-                        <%
-                            }
-                        %>
-                        
-                        <form action="${pageContext.request.contextPath}/AdminLoginServlet" method="post">
-                            <div class="form-group">
-                                <input type="email" class="form-control" name="email" placeholder="Địa chỉ Email" required/>
-                            </div>
-                            <div class="form-group">
-                                <input type="password" class="form-control" name="password" placeholder="Mật khẩu" required/>
-                            </div>
-                            <div class="flex-between">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="remember" name="remember" checked/>
-                                    <label class="form-check-label" for="remember">Ghi nhớ đăng nhập</label>
-                                </div>
-                                <a href="#" class="forgot-link">Quên mật khẩu?</a>
-                            </div>
-                            <div class="mt-4">
-                                <button type="submit" class="btn btn-primary">Đăng nhập</button>
-                            </div>
-                        </form>
-                        <div class="toggle-container">
-                            <span>Chưa có tài khoản?</span>
-                            <span class="toggle-link" onclick="toggleForm('registerForm', 'loginForm')">Đăng ký ngay</span>
+                <% String error = (String) request.getAttribute("error");
+                   if (error != null) { %>
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span><%= error %></span>
+                </div>
+                <% } %>
+
+                <form action="${pageContext.request.contextPath}/AdminLoginServlet" method="post">
+                    <div class="form-group">
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" class="form-control" name="email" placeholder="Địa chỉ Email" required>
                         </div>
                     </div>
 
-                    <!-- ========== FORM REGISTER ========== -->
-                    <div id="registerForm" class="auth-card">
-                        <div class="text-center mb-6">
-                            <a href="#"><img src="${pageContext.request.contextPath}/assets/images/logo-dark.svg" alt="logo" class="auth-logo"/></a>
-                        </div>
-                        <h2 class="auth-title">Tạo tài khoản mới</h2>
-                        <p class="auth-subtitle">Tham gia cùng LightStore Admin</p>
-                        <% if (registerError != null) { %>
-                        <div class="error-message"><%= registerError %></div>
-                        <% } %>
-                        <form action="${pageContext.request.contextPath}/AdminRegisterServlet" method="post">
-                            <div class="grid grid-cols-2">
-                                <div class="form-group">
-                                    <input type="text" class="form-control" name="firstName" placeholder="Họ" required>
-                                </div>
-                                <div class="form-group">
-                                    <input type="text" class="form-control" name="lastName" placeholder="Tên" required>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <input type="email" class="form-control" name="email" placeholder="Địa chỉ Email" required>
-                            </div>
-                            <div class="form-group">
-                                <input type="password" class="form-control" name="password" placeholder="Mật khẩu" required>
-                            </div>
-                            <div class="form-group">
-                                <input type="password" class="form-control" name="confirmPassword" placeholder="Xác nhận mật khẩu" required>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
-                                <label class="form-check-label" for="terms">Tôi đồng ý với điều khoản sử dụng</label>
-                            </div>
-                            <div class="mt-4">
-                                <button type="submit" class="btn btn-primary">Đăng ký</button>
-                            </div>
-                        </form>
-                        <div class="toggle-container">
-                            <span>Đã có tài khoản?</span>
-                            <span class="toggle-link" onclick="toggleForm('loginForm', 'registerForm')">Đăng nhập ngay</span>
+                    <div class="form-group">
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" class="form-control" name="password" placeholder="Mật khẩu" required>
                         </div>
                     </div>
+
+                    <div class="form-options">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="remember" name="remember" checked>
+                            <label class="form-check-label" for="remember">Ghi nhớ đăng nhập</label>
+                        </div>
+                        <a href="#" class="forgot-link">Quên mật khẩu?</a>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Đăng nhập
+                    </button>
+                </form>
+
+                <div class="toggle-container">
+                    <span>Chưa có tài khoản?</span>
+                    <span class="toggle-link" onclick="toggleForm('registerForm', 'loginForm')">Đăng ký ngay</span>
                 </div>
             </div>
         </div>
-                        
-        <script>
-            // JS chuyển qua lại giữa 2 form với hiệu ứng fade
-            function toggleForm(showId, hideId) {
-                const showForm = document.getElementById(showId);
-                const hideForm = document.getElementById(hideId);
-                
-                // Thêm hiệu ứng fade out cho form hiện tại
-                hideForm.classList.remove('active');
-                
-                // Sau khi fade out hoàn tất, hiển thị form mới với fade in
-                setTimeout(() => {
-                    showForm.classList.add('active');
-                }, 300); // Thời gian chờ bằng thời gian transition
-            }
+
+        <!-- FORM REGISTER -->
+        <div id="registerForm" class="auth-card">
+            <div class="login-card">
+                <div class="login-header">
+                    <div class="login-logo">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <h1 class="login-title">Tạo tài khoản</h1>
+                    <p class="login-subtitle">Tham gia cùng LightShop Admin</p>
+                </div>
+
+                <% if (registerError != null) { %>
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span><%= registerError %></span>
+                </div>
+                <% } %>
+
+                <form action="${pageContext.request.contextPath}/AdminRegisterServlet" method="post">
+                    <div class="grid grid-cols-2">
+                        <div class="form-group">
+                            <div class="input-wrapper">
+                                <i class="fas fa-user"></i>
+                                <input type="text" class="form-control" name="firstName" placeholder="Họ" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-wrapper">
+                                <i class="fas fa-user"></i>
+                                <input type="text" class="form-control" name="lastName" placeholder="Tên" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" class="form-control" name="email" placeholder="Địa chỉ Email" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" class="form-control" name="password" placeholder="Mật khẩu" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" class="form-control" name="confirmPassword" placeholder="Xác nhận mật khẩu" required>
+                        </div>
+                    </div>
+
+                    <div class="form-check" style="margin-bottom: 24px;">
+                        <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
+                        <label class="form-check-label" for="terms">Tôi đồng ý với điều khoản sử dụng</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i>
+                        Đăng ký
+                    </button>
+                </form>
+
+                <div class="toggle-container">
+                    <span>Đã có tài khoản?</span>
+                    <span class="toggle-link" onclick="toggleForm('loginForm', 'registerForm')">Đăng nhập ngay</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleForm(showId, hideId) {
+            const showForm = document.getElementById(showId);
+            const hideForm = document.getElementById(hideId);
             
-            const shouldShowRegister = '<%= (showRegister != null && showRegister) ? "true" : "false" %>' === 'true';
-            if (shouldShowRegister) {
-                toggleForm('registerForm', 'loginForm');
-            }
-        </script>
-    </body>
+            hideForm.classList.remove('active');
+            
+            setTimeout(() => {
+                showForm.classList.add('active');
+            }, 200);
+        }
+
+        const shouldShowRegister = '<%= (showRegister != null && showRegister) ? "true" : "false" %>' === 'true';
+        if (shouldShowRegister) {
+            toggleForm('registerForm', 'loginForm');
+        }
+    </script>
+</body>
 </html>

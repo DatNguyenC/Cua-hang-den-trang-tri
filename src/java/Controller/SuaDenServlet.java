@@ -39,7 +39,11 @@ public class SuaDenServlet extends HttpServlet {
             int maDen = Integer.parseInt(request.getParameter("maDen"));
             String tenDen = request.getParameter("tenDen");
             int maLoai = Integer.parseInt(request.getParameter("maLoai"));
-            int maNCC = Integer.parseInt(request.getParameter("maNCC"));
+            String maNCCStr = request.getParameter("maNCC");
+            Integer maNCC = null;
+            if (maNCCStr != null && !maNCCStr.isEmpty()) {
+                maNCC = Integer.parseInt(maNCCStr);
+            }
             String moTa = request.getParameter("moTa");
             double gia = Double.parseDouble(request.getParameter("gia"));
 
@@ -71,11 +75,11 @@ public class SuaDenServlet extends HttpServlet {
             DenDAO dao = new DenDAO();
             dao.update(den);
 
-            response.sendRedirect("elements/ShopItem.jsp");
+            response.sendRedirect(request.getContextPath() + "/elements/ShopItem.jsp");
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("elements/ShopItem.jsp?error=update");
+            response.sendRedirect(request.getContextPath() + "/elements/ShopItem.jsp?error=update");
         }
     }
 

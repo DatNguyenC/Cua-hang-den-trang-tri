@@ -1,773 +1,610 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<!doctype html>
-<html lang="en" data-pc-preset="preset-1" data-pc-sidebar-caption="true" data-pc-direction="ltr" dir="ltr" data-pc-theme="light">
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page import="java.util.*"%>
+<%@page import="Model.*"%>
+<%@page import="DAO.*"%>
+
+<!DOCTYPE html>
+<html lang="vi">
     <head>
-        <%@ include file="../layouts/head-page-meta-admin.html" %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biến thể sản phẩm - LightShop Admin</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/admin-main-content.css">
+    <link rel="stylesheet" href="../assets/css/admin-animations.css">
+    <link rel="stylesheet" href="../assets/css/admin-dashboard.css">
+    <link rel="stylesheet" href="../assets/css/shop-item.css">
+
         <style>
-            /* CSS cho phần lọc mới */
-            .search-section {
-                background: white;
-                padding: 20px;
-                border-radius: 12px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-                margin-bottom: 20px;
-                border: 1px solid #f0f0f0;
-            }
-            
-            .filter-section {
+        .variant-hero {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+                border-radius: 18px;
+            padding: 28px;
+            margin-bottom: 28px;
+            color: #fff;
+            box-shadow: 0 20px 35px rgba(15, 23, 42, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .variant-hero h1 {
+            font-size: 26px;
+            margin: 0;
                 display: flex;
                 align-items: center;
-                flex-wrap: wrap;
-                gap: 15px;
-            }
-            
-            .search-results-info {
-                background: #f8f9fa;
-                padding: 6px 12px;
-                border-radius: 20px;
-                font-weight: 500;
-                color: #6c757d;
-            }
-            
-            .filter-buttons {
+            gap: 12px;
+        }
+
+        .variant-hero p {
+            margin: 6px 0 0;
+            opacity: .85;
+        }
+
+        .hero-meta {
                 display: flex;
-                gap: 8px;
+            gap: 12px;
                 flex-wrap: wrap;
             }
             
-            .filter-btn {
-                border: 1px solid #dee2e6;
-                background: white;
-                color: #6c757d;
-                padding: 6px 12px;
-                border-radius: 20px;
-                font-size: 14px;
-                transition: all 0.2s ease;
-            }
-            
-            .filter-btn.active {
-                background: #3f4d67;
-                color: white;
-                border-color: #3f4d67;
-            }
-            
-            .filter-btn:hover {
-                background: #f8f9fa;
-                color: #3f4d67;
-            }
-            
-            .filter-label {
-                font-weight: 500;
-                color: #495057;
-                white-space: nowrap;
-            }
-            
-            .modal-fade {
-                opacity: 0;
-                pointer-events: none;
-                transition: opacity 0.3s ease;
-            }
-            .modal-fade.show {
-                opacity: 1;
-                pointer-events: auto;
-            }
+        .hero-pill {
+            padding: 8px 16px;
+            background: rgba(148, 163, 184, 0.18);
+            border-radius: 999px;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
 
-            /* Phân trang */
-            .pagination-container {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-top: 20px;
-                padding: 15px 0;
-                border-top: 1px solid #e9ecef;
-            }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+            margin-bottom: 22px;
+        }
 
-            .pagination-info {
-                color: #6c757d;
-                font-size: 14px;
-            }
+        .stat-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 15px 35px rgba(15, 23, 42, 0.08);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
 
-            .pagination {
-                margin: 0;
-                display: flex;
-                gap: 5px;
-            }
+        .stat-card h3 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 700;
+            color: #0f172a;
+        }
 
-            .page-item {
-                list-style: none;
-            }
+        .stat-card p {
+            margin: 4px 0 0;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+        }
 
-            .page-link {
+        .filter-shell {
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.05);
+            border: 1px solid rgba(226, 232, 240, 0.7);
+            margin-bottom: 22px;
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+        }
+
+        .filter-row select,
+        .filter-row input {
+            width: 100%;
+            border-radius: 12px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            padding: 10px 14px;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px 20px;
+            color: #94a3b8;
+        }
+
+        .no-data i {
+            font-size: 28px;
+            margin-bottom: 6px;
                 display: block;
-                padding: 8px 12px;
-                border: 1px solid #dee2e6;
-                border-radius: 6px;
-                color: #3f4d67;
-                text-decoration: none;
-                transition: all 0.2s ease;
-            }
+        }
 
-            .page-link:hover {
-                background-color: #f8f9fa;
-                border-color: #dee2e6;
-            }
-
-            .page-item.active .page-link {
-                background-color: #3f4d67;
-                border-color: #3f4d67;
-                color: white;
-            }
-
-            .page-item.disabled .page-link {
-                color: #6c757d;
-                background-color: #f8f9fa;
-                border-color: #dee2e6;
-                cursor: not-allowed;
-            }
-
-            .page-size-selector {
-                margin-left: 20px;
-            }
-
-            .page-size-selector select {
-                padding: 6px 10px;
-                border: 1px solid #dee2e6;
-                border-radius: 6px;
-                background: white;
-            }
-
-            /* Stats Cards */
-            .stats-cards {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 15px;
-                margin-bottom: 20px;
-            }
-
-            .stat-card {
-                background: white;
+        @media (max-width: 768px) {
+            .variant-hero {
                 padding: 20px;
-                border-radius: 12px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-                text-align: center;
-                border-left: 4px solid #3f4d67;
             }
 
-            .stat-number {
-                font-size: 24px;
-                font-weight: 700;
-                color: #3f4d67;
-                margin-bottom: 5px;
+            .stats-grid {
+                grid-template-columns: 1fr;
             }
-
-            .stat-label {
-                color: #6c757d;
-                font-size: 14px;
-            }
-
-            /* Action buttons */
-            .action-buttons {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                gap: 8px;
-            }
-
-            .action-buttons a {
-                text-decoration: none;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                width: 32px;
-                height: 32px;
-                border-radius: 6px;
-                transition: all 0.2s ease;
-            }
-
-            .action-buttons a:hover {
-                transform: translateY(-2px);
-            }
-
-            .btn-edit:hover {
-                background-color: rgba(255, 193, 7, 0.1);
-            }
-
-            .btn-delete:hover {
-                background-color: rgba(220, 53, 69, 0.1);
-            }
-
-            .btn-add:hover {
-                background-color: rgba(25, 135, 84, 0.1);
             }
         </style>
     </head>
     <body>
-        <%@ include file="../layouts/loader-admin.html" %>
-        <%@ include file="../layouts/sidebar-admin.html" %>
-        <%@ include file="../layouts/header-content-admin.jsp" %>
-        <div class="pc-container">
-            <div class="pc-content">
-                <div class="card mt-8">
-                    <div class="card-header">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Danh sách biến thể đèn</h5>
-                            <span class="badge bg-light text-dark">
-                                <i class="fas fa-cubes me-2"></i>
-                                <%= new DAO.BienTheDenDAO().getAll().size() %> biến thể
-                            </span>
-                        </div>
-                    </div>
-                    <div class="card-body">
+<%
+    BienTheDenDAO variantDAO = new BienTheDenDAO();
+    DenDAO denDAO = new DenDAO();
+    MauSacDAO colorDAO = new MauSacDAO();
+    KichThuocDAO sizeDAO = new KichThuocDAO();
 
-                        <%
-                            String msg = request.getParameter("msg");
-                            String error = request.getParameter("error");
-                            
-                            DAO.BienTheDenDAO btdDAO = new DAO.BienTheDenDAO();
-                            DAO.DenDAO denDAO = new DAO.DenDAO();
-                            DAO.MauSacDAO mauDAO = new DAO.MauSacDAO();
-                            DAO.KichThuocDAO ktDAO = new DAO.KichThuocDAO();
-                            DAO.LoaiDenDAO ldDAO = new DAO.LoaiDenDAO();
+    List<BienTheDen> allVariants = variantDAO.getAll();
+    if (allVariants == null) {
+        allVariants = new ArrayList<>();
+    }
 
-                            // Phân trang
-                            int pageSize = 10;
-                            String pageSizeParam = request.getParameter("pageSize");
-                            if (pageSizeParam != null && !pageSizeParam.isEmpty()) {
-                                try {
-                                    pageSize = Integer.parseInt(pageSizeParam);
-                                } catch (NumberFormatException e) {
-                                    pageSize = 10;
-                                }
-                            }
-                            
+    int itemsPerPage = 10;
                             int currentPage = 1;
                             String pageParam = request.getParameter("page");
-                            if (pageParam != null && !pageParam.isEmpty()) {
+    if (pageParam != null) {
                                 try {
-                                    currentPage = Integer.parseInt(pageParam);
-                                } catch (NumberFormatException e) {
+            currentPage = Math.max(1, Integer.parseInt(pageParam));
+        } catch (NumberFormatException ignored) {
                                     currentPage = 1;
                                 }
                             }
                             
-                            // Lấy toàn bộ danh sách
-                            java.util.List<Model.BienTheDen> allBienThes = btdDAO.getAll();
-                            int totalBienThes = allBienThes.size();
-                            int totalPages = (int) Math.ceil((double) totalBienThes / pageSize);
-                            
-                            // Đảm bảo currentPage hợp lệ
-                            if (currentPage < 1) currentPage = 1;
-                            if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
-                            
-                            int startIndex = (currentPage - 1) * pageSize;
-                            int endIndex = Math.min(startIndex + pageSize, totalBienThes);
-                            
-                            java.util.List<Model.BienTheDen> currentPageBienThes = allBienThes.subList(startIndex, endIndex);
-                            
-                            java.util.List<Model.Den> listDen = denDAO.getAll();
-                            java.util.List<Model.MauSac> listMau = mauDAO.getAll();
-                            java.util.List<Model.KichThuoc> listKT = ktDAO.getAll();
-                            java.util.List<Model.LoaiDen> listLd = ldDAO.getAll();
+    int totalVariants = allVariants.size();
+    int totalPages = (int) Math.ceil(totalVariants / (double) itemsPerPage);
+    if (totalPages == 0) totalPages = 1;
+    if (currentPage > totalPages) currentPage = totalPages;
 
-                            // Thống kê
-                            int totalColors = listMau.size();
-                            int totalSizes = listKT.size();
-                            int totalLamps = listDen.size();
+    int startIndex = (currentPage - 1) * itemsPerPage;
+    int endIndex = Math.min(startIndex + itemsPerPage, totalVariants);
+    List<BienTheDen> variantPage = totalVariants > 0 ? allVariants.subList(startIndex, endIndex) : Collections.emptyList();
+    int displayStart = totalVariants == 0 ? 0 : startIndex + 1;
+    int displayEnd = totalVariants == 0 ? 0 : endIndex;
 
-                            // Tạo map để lưu mã loại theo mã đèn
-                            java.util.Map<Integer, Integer> denToLoaiMap = new java.util.HashMap<>();
-                            for (Model.Den den : listDen) {
-                                denToLoaiMap.put(den.getMaDen(), den.getMaLoai());
-                            }
-                        %>
-                        
-                        <% if ("add_success".equals(msg)) { %>
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            Thêm biến thể thành công!
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                        <% } else if ("edit_success".equals(msg)) { %>
-                        <div class="alert alert-info alert-dismissible fade show" role="alert">
-                            Cập nhật thành công!
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                        <% } else if ("delete_success".equals(msg)) { %>
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            Xóa thành công!
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                        <% } else if (error != null) {%>
-                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                            <%= java.net.URLDecoder.decode(error, "UTF-8")%>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                        <% } %>
+    List<Den> lampList = denDAO.getAll();
+    if (lampList == null) lampList = new ArrayList<>();
+    Map<Integer, String> lampNameMap = new HashMap<>();
+    for (Den den : lampList) {
+        lampNameMap.put(den.getMaDen(), den.getTenDen());
+    }
 
-                        <!-- Stats Cards -->
-                        <div class="stats-cards">
+    List<MauSac> colorList = colorDAO.getAll();
+    if (colorList == null) colorList = new ArrayList<>();
+    Map<Integer, String> colorNameMap = new HashMap<>();
+    for (MauSac color : colorList) {
+        colorNameMap.put(color.getMaMau(), color.getTenMau());
+    }
+
+    List<KichThuoc> sizeList = sizeDAO.getAll();
+    if (sizeList == null) sizeList = new ArrayList<>();
+    Map<Integer, String> sizeNameMap = new HashMap<>();
+    for (KichThuoc size : sizeList) {
+        sizeNameMap.put(size.getMaKichThuoc(), size.getTenKichThuoc());
+    }
+%>
+
+<jsp:include page="../layouts/sidebar-admin.html"/>
+<jsp:include page="../layouts/header-content-admin.jsp"/>
+
+<div class="pc-container variant-page">
+    <section class="variant-hero">
+        <div>
+            <h1><i class="fas fa-layer-group"></i>Quản lý biến thể sản phẩm</h1>
+            <p>Quản lý màu sắc, kích thước cho từng sản phẩm.</p>
+                        </div>
+        <div class="hero-meta">
+            <span class="hero-pill"><i class="fas fa-boxes"></i><%= totalVariants %> biến thể</span>
+            <span class="hero-pill"><i class="fas fa-lightbulb"></i><%= lampList.size() %> sản phẩm</span>
+            <span class="hero-pill"><i class="fas fa-palette"></i><%= colorList.size() %> màu sắc</span>
+            <span class="hero-pill"><i class="fas fa-ruler"></i><%= sizeList.size() %> kích thước</span>
+                        </div>
+    </section>
+
+    <section class="stats-grid">
                             <div class="stat-card">
-                                <div class="stat-number"><%= totalBienThes %></div>
-                                <div class="stat-label">Tổng biến thể</div>
+            <h3><%= totalVariants %></h3>
+            <p>Biến thể đang hoạt động</p>
                             </div>
                             <div class="stat-card">
-                                <div class="stat-number"><%= totalLamps %></div>
-                                <div class="stat-label">Loại đèn</div>
+            <h3><%= lampList.size() %></h3>
+            <p>Sản phẩm có biến thể</p>
                             </div>
                             <div class="stat-card">
-                                <div class="stat-number"><%= totalColors %></div>
-                                <div class="stat-label">Màu sắc</div>
+            <h3><%= colorList.size() %></h3>
+            <p>Màu sắc sử dụng</p>
                             </div>
                             <div class="stat-card">
-                                <div class="stat-number"><%= totalSizes %></div>
-                                <div class="stat-label">Kích thước</div>
+            <h3><%= sizeList.size() %></h3>
+            <p>Kích thước sử dụng</p>
                             </div>
-                        </div>
+    </section>
 
-                        <!-- PHẦN LỌC MỚI - ĐÃ SỬA -->
-                        <div class="search-section">
-                            <!-- Search Row -->
-                            <div class="row mb-3">
-                                <div class="col-md-8">
-                                    <div class="search-box">
-                                        <label for="searchInput" class="form-label fw-medium text-muted mb-2">Tìm kiếm biến thể</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-light border-end-0">
+    <section class="filter-shell">
+        <div class="filter-row">
+            <div>
+                <label class="form-label">Tìm kiếm</label>
+                <div class="search-box" style="width:100%;">
                                                 <i class="fas fa-search"></i>
-                                            </span>
-                                            <input type="text" class="form-control border-start-0" 
-                                                   id="searchInput" placeholder="Nhập tên đèn, màu sắc, kích thước...">
-                                            <button class="btn btn-outline-secondary" type="button" id="clearSearch">
-                                                <i class="fas fa-times"></i>
-                                            </button>
+                    <input type="text" id="searchInput" placeholder="Nhập tên sản phẩm hoặc màu sắc..." onkeyup="filterVariants()">
                                         </div>
                                     </div>
+            <div>
+                <label class="form-label">Sản phẩm</label>
+                <select id="lampFilter" onchange="filterVariants()">
+                    <option value="">Tất cả</option>
+                    <% for (Den den : lampList) { %>
+                        <option value="<%= den.getMaDen() %>"><%= den.getTenDen() %></option>
+                    <% } %>
+                </select>
                                 </div>
+            <div>
+                <label class="form-label">Màu sắc</label>
+                <select id="colorFilter" onchange="filterVariants()">
+                    <option value="">Tất cả</option>
+                    <% for (MauSac color : colorList) { %>
+                        <option value="<%= color.getMaMau() %>"><%= color.getTenMau() %></option>
+                    <% } %>
+                </select>
                             </div>
-                            
-                            <!-- Filter Row - ĐÃ SỬA -->
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        
-                                        <!-- Hiển thị số kết quả -->
-                                        <div class="search-results-info">
-                                            <span id="searchResultsCount"><%= currentPageBienThes.size() %></span> biến thể / trang
+            <div>
+                <label class="form-label">Kích thước</label>
+                <select id="sizeFilter" onchange="filterVariants()">
+                    <option value="">Tất cả</option>
+                    <% for (KichThuoc size : sizeList) { %>
+                        <option value="<%= size.getMaKichThuoc() %>"><%= size.getTenKichThuoc() %></option>
+                    <% } %>
+                </select>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
+    </section>
 
-                        <!-- Bảng dữ liệu - ĐÃ THÊM data-loai -->
+    <section class="table-container">
+        <div class="table-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <h3>Danh sách biến thể</h3>
+                <small id="tableSubtitle">Hiển thị <%= displayStart %> - <%= displayEnd %> / <%= totalVariants %> biến thể</small>
+                                </div>
+            <button class="btn-primary" onclick="showAddModal()">
+                <i class="fas fa-plus-circle"></i> Thêm biến thể
+            </button>
+                        </div>
                         <div class="table-responsive">
-                            <table class="table table-hover" id="bienTheTable">
-                                <thead class="table-light">
+            <table class="products-table" id="variantTable">
+                <thead>
                                     <tr>
-                                        <th>Mã biến thể</th>
-                                        <th>Đèn</th>
+                    <th>STT</th>
+                    <th>Thông tin biến thể</th>
                                         <th>Màu sắc</th>
                                         <th>Kích thước</th>
-                                        <th style="width: 120px; text-align: center;">Hành động</th>
+                    <th>Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <% if (currentPageBienThes.isEmpty()) { %>
-                                    <tr>
-                                        <td colspan="5" class="text-center text-muted py-4">
-                                            <i class="fas fa-inbox fa-2x mb-2"></i><br>
-                                            Không có biến thể nào
+                <% if (variantPage.isEmpty()) { %>
+                    <tr>
+                        <td colspan="5">
+                            <div class="no-data">
+                                <i class="fas fa-box-open"></i>
+                                Không có biến thể nào trong trang này.
+                            </div>
                                         </td>
                                     </tr>
                                     <% } else { 
-                                        for (Model.BienTheDen btd : currentPageBienThes) {
-                                            String tenDen = denDAO.getTenDenById(btd.getMaDen());
-                                            String tenMau = (btd.getMaMau() != null && btd.getMaMau() != 0) ? mauDAO.getTenMauById(btd.getMaMau()) : "-";
-                                            String tenKT = (btd.getMaKichThuoc() != null && btd.getMaKichThuoc() != 0) ? ktDAO.getTenKichThuocById(btd.getMaKichThuoc()) : "-";
-
-                                            // Lấy mã loại từ map
-                                            Integer maLoai = denToLoaiMap.get(btd.getMaDen());
-                                            String dataLoai = maLoai != null ? "loai-" + maLoai : "";
-
-                                            String safeIdStr = String.valueOf(btd.getMaBienThe());
-                                    %>
-                                    <tr data-den="<%= btd.getMaDen() %>" data-loai="<%= dataLoai %>">
-                                        <td><strong><%= btd.getMaBienThe()%></strong></td>
-                                        <td>
-                                            <div>
-                                                <div><strong><%= tenDen%></strong></div>
-                                                <small class="text-muted">Mã đèn: <%= btd.getMaDen()%></small>
+                    int stt = startIndex + 1;
+                    for (BienTheDen variant : variantPage) {
+                        String productName = lampNameMap.getOrDefault(variant.getMaDen(), "Không xác định");
+                        String colorName = "-";
+                        if (variant.getMaMau() != null) {
+                            colorName = colorNameMap.getOrDefault(variant.getMaMau(), "-");
+                        }
+                        String sizeName = "-";
+                        if (variant.getMaKichThuoc() != null) {
+                            sizeName = sizeNameMap.getOrDefault(variant.getMaKichThuoc(), "-");
+                        }
+                        String colorValue = variant.getMaMau() != null ? String.valueOf(variant.getMaMau()) : "";
+                        String sizeValue = variant.getMaKichThuoc() != null ? String.valueOf(variant.getMaKichThuoc()) : "";
+                %>
+                <tr data-den="<%= variant.getMaDen() %>"
+                    data-color="<%= colorValue %>"
+                    data-size="<%= sizeValue %>">
+                    <td><%= stt++ %></td>
+                    <td>
+                        <div class="product-info">
+                            <h4 class="product-name">Mã biến thể: <%= variant.getMaBienThe() %></h4>
+                            <div class="product-details">
+                                <span class="category"><i class="fas fa-lightbulb"></i> <%= productName %></span>
+                                <span class="supplier"><i class="fas fa-barcode"></i> Đèn #<%= variant.getMaDen() %></span>
+                            </div>
                                             </div>
                                         </td>
                                         <td>
-                                            <% if (!"-".equals(tenMau)) { %>
-                                            <span class="badge bg-light text-dark">
-                                                <i class="fas fa-palette me-1"></i>
-                                                <%= tenMau%>
-                                            </span>
+                        <% if (!"-".equals(colorName)) { %>
+                            <span class="badge bg-light text-dark"><i class="fas fa-palette"></i> <%= colorName %></span>
                                             <% } else { %>
                                             <span class="text-muted">-</span>
                                             <% } %>
                                         </td>
                                         <td>
-                                            <% if (!"-".equals(tenKT)) { %>
-                                            <span class="badge bg-info text-white">
-                                                <i class="fas fa-ruler me-1"></i>
-                                                <%= tenKT%>
-                                            </span>
+                        <% if (!"-".equals(sizeName)) { %>
+                            <span class="badge bg-info text-white"><i class="fas fa-ruler"></i> <%= sizeName %></span>
                                             <% } else { %>
                                             <span class="text-muted">-</span>
                                             <% } %>
                                         </td>
-                                        <td style="text-align: center; vertical-align: middle;">
+                    <td>
                                             <div class="action-buttons">
-                                                <a href="#" title="Sửa" class="text-warning btn-edit"
-                                                   data-id="<%= safeIdStr%>"
-                                                   data-den="<%= btd.getMaDen()%>"
-                                                   data-mau="<%= btd.getMaMau() != null ? btd.getMaMau() : ""%>"
-                                                   data-kt="<%= btd.getMaKichThuoc() != null ? btd.getMaKichThuoc() : ""%>">
-                                                    <i data-feather="edit"></i>
-                                                </a>
-                                                <a href="#" title="Xóa" class="text-danger btn-delete"
-                                                   data-id="<%= safeIdStr%>"
-                                                   data-ten="<%= tenDen %>">
-                                                    <i data-feather="trash-2"></i>
-                                                </a>
+                            <button class="btn-action btn-edit"
+                                    data-id="<%= variant.getMaBienThe() %>"
+                                    data-den="<%= variant.getMaDen() %>"
+                                    data-mau="<%= colorValue %>"
+                                    data-kt="<%= sizeValue %>">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-action btn-delete"
+                                    data-id="<%= variant.getMaBienThe() %>"
+                                    data-name="<%= productName.replace("\"", "&quot;") %>">
+                                <i class="fas fa-trash"></i>
+                            </button>
                                             </div>
                                         </td>
                                     </tr>
-                                    <% } 
+                <%  }
                                     } %>
                                 </tbody>
                             </table>
                         </div>
 
-                        <!-- Phân trang -->
-                        <% if (totalPages > 1) { %>
                         <div class="pagination-container">
-                            <div class="pagination-info">
-                                Hiển thị <%= startIndex + 1 %> - <%= endIndex %> của <%= totalBienThes %> biến thể
+            <div class="page-info">
+                Hiển thị <%= displayStart %> - <%= displayEnd %> / <%= totalVariants %> biến thể
                             </div>
-                            
+            <nav class="pagination-nav">
                             <ul class="pagination">
-                                <!-- Nút Previous -->
-                                <% if (currentPage > 1) { %>
-                                <li class="page-item">
-                                    <a class="page-link" href="?page=<%= currentPage - 1 %>&pageSize=<%= pageSize %>">&laquo;</a>
+                    <li class="page-item <%= currentPage == 1 ? "disabled" : "" %>">
+                        <a class="page-link" href="?page=<%= Math.max(1, currentPage - 1) %>">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
                                 </li>
-                                <% } else { %>
-                                <li class="page-item disabled">
-                                    <span class="page-link">&laquo;</span>
-                                </li>
-                                <% } %>
-                                
-                                <!-- Các trang -->
-                                <% 
-                                int startPage = Math.max(1, currentPage - 2);
-                                int endPage = Math.min(totalPages, currentPage + 2);
-                                
-                                for (int i = startPage; i <= endPage; i++) { 
-                                %>
-                                <li class="page-item <%= i == currentPage ? "active" : "" %>">
-                                    <a class="page-link" href="?page=<%= i %>&pageSize=<%= pageSize %>"><%= i %></a>
-                                </li>
-                                <% } %>
-                                
-                                <!-- Nút Next -->
-                                <% if (currentPage < totalPages) { %>
-                                <li class="page-item">
-                                    <a class="page-link" href="?page=<%= currentPage + 1 %>&pageSize=<%= pageSize %>">&raquo;</a>
-                                </li>
-                                <% } else { %>
-                                <li class="page-item disabled">
-                                    <span class="page-link">&raquo;</span>
-                                </li>
-                                <% } %>
-                            </ul>
-                            
-                            <!-- Chọn số biến thể mỗi trang -->
-                            <div class="page-size-selector">
-                                <select class="form-select form-select-sm" onchange="changePageSize(this.value)" style="width: auto;">
-                                    <option value="10" <%= pageSize == 10 ? "selected" : "" %>>10 / trang</option>
-                                    <option value="25" <%= pageSize == 25 ? "selected" : "" %>>25 / trang</option>
-                                    <option value="50" <%= pageSize == 50 ? "selected" : "" %>>50 / trang</option>
-                                </select>
-                            </div>
-                        </div>
+                    <%
+                        int window = 2;
+                        int startPage = Math.max(1, currentPage - window);
+                        int endPage = Math.min(totalPages, currentPage + window);
+                        if (startPage > 1) {
+                    %>
+                        <li class="page-item"><a class="page-link" href="?page=1">1</a></li>
+                        <% if (startPage > 2) { %>
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
                         <% } %>
-
-                        <!-- NÚT THÊM MỚI -->
-                        <div class="mb-3">
-                            <button id="btnShowAddBienThe" type="button" class="btn btn-primary d-flex align-items-center" style="display: inline-flex; align-items: center; gap: 6px;">
-                                <i data-feather="plus"></i>
-                                <span>Thêm biến thể mới</span>
-                            </button>
+                    <% } %>
+                    <% for (int i = startPage; i <= endPage; i++) { %>
+                                <li class="page-item <%= i == currentPage ? "active" : "" %>">
+                            <% if (i == currentPage) { %>
+                                <span class="page-link current"><%= i %></span>
+                            <% } else { %>
+                                <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                                <% } %>
+                                </li>
+                                <% } %>
+                    <% if (endPage < totalPages) { %>
+                        <% if (endPage < totalPages - 1) { %>
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        <% } %>
+                        <li class="page-item"><a class="page-link" href="?page=<%= totalPages %>"><%= totalPages %></a></li>
+                    <% } %>
+                    <li class="page-item <%= currentPage == totalPages ? "disabled" : "" %>">
+                        <a class="page-link" href="?page=<%= Math.min(totalPages, currentPage + 1) %>">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </section>
                         </div>
 
-                        <!-- MODAL THÊM MỚI -->
-                        <div id="addBienTheModal" class="modal-fade" style="display:none; position:fixed; z-index:1050; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
-                            <div style="background:#fff; border-radius:8px; max-width:500px; width:90vw; padding:30px; position:relative; box-shadow:0 10px 30px rgba(0,0,0,0.3);">
-                                <h5 class="mb-4">Thêm biến thể mới</h5>
-                                <form id="addBienTheForm" action="<%=request.getContextPath()%>/them-bien-the" method="post">
-                                    <div class="mb-3">
-                                        <label for="addMaDen" class="form-label">Đèn *</label>
-                                        <select class="form-select" id="addMaDen" name="maDen" required>
-                                            <option value="">-- Chọn đèn --</option>
-                                            <% for (Model.Den d : listDen) {%>
-                                            <option value="<%= d.getMaDen()%>"><%= d.getTenDen()%></option>
+<div id="variantModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3 id="modalTitle"><i class="fas fa-plus-circle"></i> Thêm biến thể</h3>
+            <button class="close-btn" onclick="closeModal()"><i class="fas fa-times"></i></button>
+                                    </div>
+        <form id="variantForm" method="post">
+            <div class="modal-body">
+                <input type="hidden" id="maBienThe" name="maBienThe">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="maDen">Sản phẩm *</label>
+                        <select id="maDen" name="maDen" required>
+                            <option value="">Chọn sản phẩm</option>
+                            <% for (Den den : lampList) { %>
+                                <option value="<%= den.getMaDen() %>"><%= den.getTenDen() %></option>
                                             <% } %>
                                         </select>
                                     </div>
-                                    <div class="mb-3">
-                                        <label for="addMaMau" class="form-label">Màu sắc</label>
-                                        <select class="form-select" id="addMaMau" name="maMau">
-                                            <option value="">-- Chọn màu (tùy chọn) --</option>
-                                            <% for (Model.MauSac m : listMau) {%>
-                                            <option value="<%= m.getMaMau()%>"><%= m.getTenMau()%></option>
+                    <div class="form-group">
+                        <label for="maMau">Màu sắc</label>
+                        <select id="maMau" name="maMau">
+                            <option value="">Không chọn</option>
+                            <% for (MauSac color : colorList) { %>
+                                <option value="<%= color.getMaMau() %>"><%= color.getTenMau() %></option>
                                             <% } %>
                                         </select>
                                     </div>
-                                    <div class="mb-3">
-                                        <label for="addMaKT" class="form-label">Kích thước</label>
-                                        <select class="form-select" id="addMaKT" name="maKichThuoc">
-                                            <option value="">-- Chọn kích thước (tùy chọn) --</option>
-                                            <% for (Model.KichThuoc k : listKT) {%>
-                                            <option value="<%= k.getMaKichThuoc()%>"><%= k.getTenKichThuoc()%></option>
-                                            <% }%>
-                                        </select>
-                                    </div>
-                                    <div class="mt-4 d-flex justify-content-end" style="gap:12px;">
-                                        <button type="button" id="btnCloseAddBienThe" class="btn btn-secondary">Hủy</button>
-                                        <button type="submit" class="btn btn-primary">Thêm biến thể</button>
-                                    </div>
-                                </form>
-                                <button id="btnCloseAddBienTheX" type="button" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:24px; color:#6c757d; cursor:pointer;">×</button>
-                            </div>
-                        </div>
-
-                        <!-- MODAL SỬA -->
-                        <div id="editBienTheModal" class="modal-fade" style="display:none; position:fixed; z-index:1050; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
-                            <div style="background:#fff; border-radius:8px; max-width:500px; width:90vw; padding:30px; position:relative; box-shadow:0 10px 30px rgba(0,0,0,0.3);">
-                                <h5 class="mb-4">Cập nhật biến thể</h5>
-                                <form id="editBienTheForm" action="<%=request.getContextPath()%>/sua-bien-the" method="post">
-                                    <input type="hidden" id="editMaBienThe" name="maBienThe" />
-                                    <div class="mb-3">
-                                        <label for="editMaDen" class="form-label">Đèn *</label>
-                                        <select class="form-select" id="editMaDen" name="maDen" required>
-                                            <option value="">-- Chọn đèn --</option>
-                                            <% for (Model.Den d : listDen) {%>
-                                            <option value="<%= d.getMaDen()%>"><%= d.getTenDen()%></option>
+                    <div class="form-group">
+                        <label for="maKichThuoc">Kích thước</label>
+                        <select id="maKichThuoc" name="maKichThuoc">
+                            <option value="">Không chọn</option>
+                            <% for (KichThuoc size : sizeList) { %>
+                                <option value="<%= size.getMaKichThuoc() %>"><%= size.getTenKichThuoc() %></option>
                                             <% } %>
                                         </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="editMaMau" class="form-label">Màu sắc</label>
-                                        <select class="form-select" id="editMaMau" name="maMau">
-                                            <option value="">-- Chọn màu (tùy chọn) --</option>
-                                            <% for (Model.MauSac m : listMau) {%>
-                                            <option value="<%= m.getMaMau()%>"><%= m.getTenMau()%></option>
-                                            <% } %>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="editMaKT" class="form-label">Kích thước</label>
-                                        <select class="form-select" id="editMaKT" name="maKichThuoc">
-                                            <option value="">-- Chọn kích thước (tùy chọn) --</option>
-                                            <% for (Model.KichThuoc k : listKT) {%>
-                                            <option value="<%= k.getMaKichThuoc()%>"><%= k.getTenKichThuoc()%></option>
-                                            <% }%>
-                                        </select>
-                                    </div>
-                                    <div class="mt-4 d-flex justify-content-end" style="gap:12px;">
-                                        <button type="button" id="btnCloseEditBienThe" class="btn btn-secondary">Hủy</button>
-                                        <button type="submit" class="btn btn-primary">Cập nhật</button>
-                                    </div>
-                                </form>
-                                <button id="btnCloseEditBienTheX" type="button" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:24px; color:#6c757d; cursor:pointer;">×</button>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeModal()">
+                    <i class="fas fa-times"></i> Hủy
+                </button>
+                <button type="submit" class="btn-primary" id="variantSubmitBtn">
+                    <i class="fas fa-save"></i> Lưu biến thể
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="deleteModal" class="modal-overlay">
+    <div class="modal-container small">
+        <div class="modal-header danger">
+            <h3><i class="fas fa-exclamation-triangle"></i> Xác nhận xóa</h3>
         </div>
-        <%@ include file="../layouts/footer-block-admin.html" %>
+        <div class="modal-body">
+            <p>Bạn có chắc chắn muốn xóa biến thể <strong id="deleteVariantName"></strong> không?</p>
+            <p class="warning">Hành động này không thể hoàn tác.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" onclick="closeDeleteModal()">
+                <i class="fas fa-times"></i> Hủy
+            </button>
+            <button type="button" class="btn-danger" id="confirmDeleteBtn">
+                <i class="fas fa-trash"></i> Xóa
+            </button>
+        </div>
+    </div>
+</div>
 
         <script>
-            // Hàm thay đổi số biến thể mỗi trang
-            function changePageSize(size) {
-                const url = new URL(window.location.href);
-                url.searchParams.set('pageSize', size);
-                url.searchParams.set('page', '1'); // Reset về trang 1
-                window.location.href = url.toString();
+    let currentVariantId = null;
+    let deleteVariantId = null;
+
+    function showAddModal() {
+        currentVariantId = null;
+        document.getElementById('variantForm').action = '<%=request.getContextPath()%>/them-bien-the';
+        document.getElementById('modalTitle').innerHTML = '<i class="fas fa-plus-circle"></i> Thêm biến thể';
+        document.getElementById('variantSubmitBtn').innerHTML = '<i class="fas fa-save"></i> Thêm biến thể';
+        document.getElementById('variantSubmitBtn').disabled = false;
+        document.getElementById('variantForm').reset();
+        document.getElementById('maBienThe').value = '';
+        document.getElementById('variantModal').classList.add('show');
+    }
+
+    function showEditModal(button) {
+        currentVariantId = button.getAttribute('data-id');
+        document.getElementById('variantForm').action = '<%=request.getContextPath()%>/sua-bien-the';
+        document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit"></i> Cập nhật biến thể';
+        document.getElementById('variantSubmitBtn').innerHTML = '<i class="fas fa-save"></i> Cập nhật';
+        document.getElementById('variantSubmitBtn').disabled = false;
+
+        document.getElementById('maBienThe').value = currentVariantId;
+        document.getElementById('maDen').value = button.getAttribute('data-den') || '';
+        document.getElementById('maMau').value = button.getAttribute('data-mau') || '';
+        document.getElementById('maKichThuoc').value = button.getAttribute('data-kt') || '';
+
+        document.getElementById('variantModal').classList.add('show');
+    }
+
+    function closeModal() {
+        document.getElementById('variantModal').classList.remove('show');
+        document.getElementById('variantForm').reset();
+        document.getElementById('maBienThe').value = '';
+        currentVariantId = null;
+    }
+
+    function showDeleteModal(button) {
+        deleteVariantId = button.getAttribute('data-id');
+        const name = button.getAttribute('data-name') || 'biến thể này';
+        document.getElementById('deleteVariantName').textContent = 'Mã ' + deleteVariantId + ' - ' + name;
+        document.getElementById('confirmDeleteBtn').disabled = false;
+        document.getElementById('confirmDeleteBtn').innerHTML = '<i class="fas fa-trash"></i> Xóa';
+        document.getElementById('deleteModal').classList.add('show');
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.remove('show');
+        deleteVariantId = null;
+    }
+
+    function filterVariants() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const lampFilter = document.getElementById('lampFilter').value;
+        const colorFilter = document.getElementById('colorFilter').value;
+        const sizeFilter = document.getElementById('sizeFilter').value;
+        const subtitle = document.getElementById('tableSubtitle');
+
+        const rows = document.querySelectorAll('#variantTable tbody tr');
+        let visible = 0;
+                        
+                        rows.forEach(row => {
+            const name = row.querySelector('.product-name') ? row.querySelector('.product-name').textContent.toLowerCase() : '';
+            const colorCell = row.cells.length > 2 ? row.cells[2].textContent.toLowerCase() : '';
+            const sizeCell = row.cells.length > 3 ? row.cells[3].textContent.toLowerCase() : '';
+            const matchesSearch = !searchTerm || name.includes(searchTerm) || colorCell.includes(searchTerm) || sizeCell.includes(searchTerm);
+            const matchesLamp = !lampFilter || row.getAttribute('data-den') === lampFilter;
+            const matchesColor = !colorFilter || row.getAttribute('data-color') === colorFilter;
+            const matchesSize = !sizeFilter || row.getAttribute('data-size') === sizeFilter;
+            const show = matchesSearch && matchesLamp && matchesColor && matchesSize;
+            row.style.display = show ? '' : 'none';
+            if (show) visible++;
+        });
+
+        if (subtitle) {
+            if (searchTerm || lampFilter || colorFilter || sizeFilter) {
+                subtitle.textContent = 'Đang hiển thị ' + visible + ' biến thể (đã lọc)';
+            } else {
+                subtitle.textContent = 'Hiển thị <%= displayStart %> - <%= displayEnd %> / <%= totalVariants %> biến thể';
             }
+        }
+    }
 
-            document.addEventListener('DOMContentLoaded', function () {
-                // === PHẦN LỌC MỚI - ĐÃ SỬA ===
-                const searchInput = document.getElementById('searchInput');
-                const clearSearch = document.getElementById('clearSearch');
-                const bienTheTable = document.getElementById('bienTheTable');
-                const searchResultsCount = document.getElementById('searchResultsCount');
-                
-                // TÌM KIẾM BIẾN THỂ
-                if (searchInput) {
-                    searchInput.addEventListener('input', function(e) {
-                        const searchTerm = e.target.value.toLowerCase().trim();
-                        const rows = bienTheTable.querySelectorAll('tbody tr');
-                        let visibleCount = 0;
-                        
-                        rows.forEach(row => {
-                            const denName = row.cells[1].textContent.toLowerCase();
-                            const mauSac = row.cells[2].textContent.toLowerCase();
-                            const kichThuoc = row.cells[3].textContent.toLowerCase();
-                            
-                            if (denName.includes(searchTerm) || 
-                                mauSac.includes(searchTerm) || 
-                                kichThuoc.includes(searchTerm)) {
-                                row.style.display = '';
-                                visibleCount++;
-                            } else {
-                                row.style.display = 'none';
-                            }
-                        });
-                        
-                        // Cập nhật số kết quả
-                        if (searchResultsCount) {
-                            searchResultsCount.textContent = visibleCount + ' biến thể / trang';
-                        }
-                    });
-                }
-                
-                if (clearSearch) {
-                    clearSearch.addEventListener('click', function() {
-                        searchInput.value = '';
-                        searchInput.dispatchEvent(new Event('input'));
-                        searchInput.focus();
-                    });
-                }
-                
-                // LỌC THEO LOẠI ĐÈN - ĐÃ SỬA HOÀN TOÀN
-                const filterButtons = document.querySelectorAll('.filter-btn');
-                filterButtons.forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        // Xóa active class từ tất cả buttons
-                        filterButtons.forEach(b => b.classList.remove('active'));
-                        // Thêm active class cho button được click
-                        this.classList.add('active');
-                        
-                        const filterValue = this.getAttribute('data-filter');
-                        const rows = bienTheTable.querySelectorAll('tbody tr');
-                        let visibleCount = 0;
-                        
-                        rows.forEach(row => {
-                            if (filterValue === 'all') {
-                                row.style.display = '';
-                                visibleCount++;
-                            } else {
-                                const rowLoai = row.getAttribute('data-loai');
-                                if (rowLoai === filterValue) {
-                                    row.style.display = '';
-                                    visibleCount++;
-                                } else {
-                                    row.style.display = 'none';
-                                }
-                            }
-                        });
-                        
-                        // Cập nhật số kết quả
-                        if (searchResultsCount) {
-                            searchResultsCount.textContent = visibleCount + ' biến thể / trang';
-                        }
-                    });
-                });
+    function clearFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('lampFilter').value = '';
+        document.getElementById('colorFilter').value = '';
+        document.getElementById('sizeFilter').value = '';
+        document.querySelectorAll('#variantTable tbody tr').forEach(row => row.style.display = '');
+        const subtitle = document.getElementById('tableSubtitle');
+        if (subtitle) {
+            subtitle.textContent = 'Hiển thị <%= displayStart %> - <%= displayEnd %> / <%= totalVariants %> biến thể';
+        }
+    }
 
-                // === QUẢN LÝ MODAL ===
-                const addModal = document.getElementById('addBienTheModal');
-                const editModal = document.getElementById('editBienTheModal');
-                const btnShowAdd = document.getElementById('btnShowAddBienThe');
-                const btnCloseAdd = document.getElementById('btnCloseAddBienThe');
-                const btnCloseAddX = document.getElementById('btnCloseAddBienTheX');
-                const btnCloseEdit = document.getElementById('btnCloseEditBienThe');
-                const btnCloseEditX = document.getElementById('btnCloseEditBienTheX');
-
-                function showModal(modal) {
-                    modal.style.display = 'flex';
-                    setTimeout(() => modal.classList.add('show'), 10);
-                }
-
-                function hideModal(modal) {
-                    modal.classList.remove('show');
-                    setTimeout(() => modal.style.display = 'none', 300);
-                }
-
-                // 1. NÚT "THÊM BIẾN THỂ MỚI" (dưới bảng)
-                if (btnShowAdd) {
-                    btnShowAdd.onclick = () => showModal(addModal);
-                }
-
-                // 2. NÚT "SỬA"
+    document.addEventListener('DOMContentLoaded', function () {
                 document.querySelectorAll('.btn-edit').forEach(btn => {
-                    btn.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        const data = this.dataset;
-                        document.getElementById('editMaBienThe').value = data.id;
-                        document.getElementById('editMaDen').value = data.den;
-                        document.getElementById('editMaMau').value = data.mau || '';
-                        document.getElementById('editMaKT').value = data.kt || '';
-                        showModal(editModal);
+            btn.addEventListener('click', function () {
+                showEditModal(this);
                     });
                 });
 
-                // 3. NÚT "XÓA"
                 document.querySelectorAll('.btn-delete').forEach(btn => {
-                    btn.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        const id = this.dataset.id;
-                        const tenDen = this.dataset.ten || 'biến thể này';
-
-                        // KIỂM TRA KỸ: Không được rỗng và phải là số hợp lệ
-                        if (!id || id.trim() === '' || isNaN(parseInt(id))) {
-                            alert('Lỗi: Không tìm thấy Mã Biến Thể hợp lệ để xóa. ID: ' + id);
-                            return;
-                        }
-
-                        // Hiển thị popup xác nhận
-                        if (confirm('Bạn có chắc muốn xóa biến thể mã ' + id + ' (' + tenDen + ') không?')) {
-                            // Dẫn đến Servlet xóa
-                            window.location.href = '<%= request.getContextPath()%>/xoa-bien-the?id=' + encodeURIComponent(id);
-                        }
+            btn.addEventListener('click', function () {
+                showDeleteModal(this);
                     });
                 });
 
-                // ĐÓNG MODAL
-                if (btnCloseAdd)
-                    btnCloseAdd.onclick = () => hideModal(addModal);
-                if (btnCloseAddX)
-                    btnCloseAddX.onclick = () => hideModal(addModal);
-                if (btnCloseEdit)
-                    btnCloseEdit.onclick = () => hideModal(editModal);
-                if (btnCloseEditX)
-                    btnCloseEditX.onclick = () => hideModal(editModal);
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
+            if (!deleteVariantId) return;
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xóa...';
+            window.location.href = '<%=request.getContextPath()%>/xoa-bien-the?id=' + encodeURIComponent(deleteVariantId);
+        });
 
-                // Đóng khi click ngoài modal
-                if (addModal) {
-                    addModal.onclick = e => {
-                        if (e.target === addModal)
-                            hideModal(addModal);
-                    };
-                }
-                if (editModal) {
-                    editModal.onclick = e => {
-                        if (e.target === editModal)
-                            hideModal(editModal);
-                    };
-                }
-
-                // KHỞI TẠO FEATHER ICONS
-                if (typeof feather !== 'undefined') {
-                    feather.replace();
-                }
+        document.getElementById('variantForm').addEventListener('submit', function () {
+            const btn = document.getElementById('variantSubmitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang lưu...';
+        });
             });
         </script>
-
-        <%@ include file="../layouts/footer-js-admin.html" %>
     </body>
 </html> 
+

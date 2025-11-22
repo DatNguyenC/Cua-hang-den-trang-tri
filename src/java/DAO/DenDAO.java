@@ -7,6 +7,14 @@ import java.util.List;
 
 public class DenDAO {
 
+    // Helper method để xử lý hinh_anh từ ResultSet (NULL hoặc empty string -> null)
+    private String normalizeHinhAnh(String hinhAnh) {
+        if (hinhAnh == null || hinhAnh.trim().isEmpty()) {
+            return null;
+        }
+        return hinhAnh.trim();
+    }
+
     public List<Den> getAll() {
         List<Den> list = new ArrayList<>();
         String sql = "SELECT * FROM den";
@@ -17,14 +25,15 @@ public class DenDAO {
             }
             try (Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(sql)) {
                 while (rs.next()) {
+                    Integer maNCC = rs.getObject("ma_ncc", Integer.class);
                     list.add(new Den(
                             rs.getInt("ma_den"),
                             rs.getString("ten_den"),
                             rs.getInt("ma_loai"),
-                            rs.getInt("ma_ncc"),
+                            maNCC,
                             rs.getString("mo_ta"),
                             rs.getDouble("gia"),
-                            rs.getString("hinh_anh")
+                            normalizeHinhAnh(rs.getString("hinh_anh"))
                     ));
                 }
             }
@@ -45,14 +54,15 @@ public class DenDAO {
                 ps.setInt(1, maDen);
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
+                    Integer maNCC = rs.getObject("ma_ncc", Integer.class);
                     return new Den(
                             rs.getInt("ma_den"),
                             rs.getString("ten_den"),
                             rs.getInt("ma_loai"),
-                            rs.getInt("ma_ncc"),
+                            maNCC,
                             rs.getString("mo_ta"),
                             rs.getDouble("gia"),
-                            rs.getString("hinh_anh")
+                            normalizeHinhAnh(rs.getString("hinh_anh"))
                     );
                 }
             } catch (SQLException e) {
@@ -218,7 +228,7 @@ public class DenDAO {
                             rs.getInt("ma_ncc"),
                             rs.getString("mo_ta"),
                             rs.getDouble("gia"),
-                            rs.getString("hinh_anh")
+                            normalizeHinhAnh(rs.getString("hinh_anh"))
                     ));
                 }
             }
@@ -292,7 +302,100 @@ public class DenDAO {
                             rs.getInt("ma_ncc"),
                             rs.getString("mo_ta"),
                             rs.getDouble("gia"),
-                            rs.getString("hinh_anh")
+                            normalizeHinhAnh(rs.getString("hinh_anh"))
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+    
+    // Lấy sản phẩm mới nhất
+    public List<Den> getNewestProducts(int limit) {
+        List<Den> list = new ArrayList<>();
+        String sql = "SELECT * FROM den ORDER BY ma_den DESC LIMIT ?";
+        try (Connection conn = DBConnect.getConnection()) {
+            if (conn == null) {
+                return list;
+            }
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setInt(1, limit);
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    list.add(new Den(
+                            rs.getInt("ma_den"),
+                            rs.getString("ten_den"),
+                            rs.getInt("ma_loai"),
+                            rs.getInt("ma_ncc"),
+                            rs.getString("mo_ta"),
+                            rs.getDouble("gia"),
+                            normalizeHinhAnh(rs.getString("hinh_anh"))
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+    
+    // Lấy sản phẩm nổi bật (sản phẩm có giá cao hoặc mới nhất)
+    public List<Den> getFeaturedProducts(int limit) {
+        List<Den> list = new ArrayList<>();
+        String sql = "SELECT * FROM den ORDER BY gia DESC, ma_den DESC LIMIT ?";
+        try (Connection conn = DBConnect.getConnection()) {
+            if (conn == null) {
+                return list;
+            }
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setInt(1, limit);
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    list.add(new Den(
+                            rs.getInt("ma_den"),
+                            rs.getString("ten_den"),
+                            rs.getInt("ma_loai"),
+                            rs.getInt("ma_ncc"),
+                            rs.getString("mo_ta"),
+                            rs.getDouble("gia"),
+                            normalizeHinhAnh(rs.getString("hinh_anh"))
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+    
+    // Lấy sản phẩm bán chạy (dựa vào số lượng đã bán trong chi_tiet_hoa_don)
+    public List<Den> getBestSellingProducts(int limit) {
+        List<Den> list = new ArrayList<>();
+        String sql = "SELECT d.*, COALESCE(SUM(cthd.so_luong), 0) as total_sold " +
+                     "FROM den d " +
+                     "LEFT JOIN bien_the_den btd ON d.ma_den = btd.ma_den " +
+                     "LEFT JOIN chi_tiet_hoa_don cthd ON btd.ma_bien_the = cthd.ma_bien_the " +
+                     "GROUP BY d.ma_den " +
+                     "ORDER BY total_sold DESC, d.ma_den DESC " +
+                     "LIMIT ?";
+        try (Connection conn = DBConnect.getConnection()) {
+            if (conn == null) {
+                return list;
+            }
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setInt(1, limit);
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    list.add(new Den(
+                            rs.getInt("ma_den"),
+                            rs.getString("ten_den"),
+                            rs.getInt("ma_loai"),
+                            rs.getInt("ma_ncc"),
+                            rs.getString("mo_ta"),
+                            rs.getDouble("gia"),
+                            normalizeHinhAnh(rs.getString("hinh_anh"))
                     ));
                 }
             }

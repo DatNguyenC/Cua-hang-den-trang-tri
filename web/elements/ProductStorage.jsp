@@ -1,798 +1,567 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<!doctype html>
-<html lang="en" data-pc-preset="preset-1" data-pc-sidebar-caption="true" data-pc-direction="ltr" dir="ltr" data-pc-theme="light">
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page import="java.util.*"%>
+<%@page import="java.text.NumberFormat"%>
+<%@page import="Model.*"%>
+<%@page import="DAO.*"%>
+
+<!DOCTYPE html>
+<html lang="vi">
     <head>
-        <%@ include file="../layouts/head-page-meta-admin.html" %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kho hàng - LightShop Admin</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/admin-main-content.css">
+    <link rel="stylesheet" href="../assets/css/admin-animations.css">
+    <link rel="stylesheet" href="../assets/css/admin-dashboard.css">
+    <link rel="stylesheet" href="../assets/css/shop-item.css">
+
         <style>
-            /* Đảm bảo body và html chiếm toàn bộ chiều cao */
-            html, body {
-                height: 100%;
-                margin: 0;
-                padding: 0;
-            }
-
-            /* Layout chính sử dụng flexbox */
-            body {
+        .stock-hero {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            border-radius: 18px;
+            padding: 28px;
+            margin-bottom: 28px;
+            color: #fff;
+            box-shadow: 0 20px 35px rgba(15, 23, 42, 0.35);
                 display: flex;
-                flex-direction: column;
-                min-height: 100vh;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            flex-wrap: wrap;
             }
 
-            /* Main content chiếm toàn bộ không gian còn lại */
-            .main-content-wrapper {
-                flex: 1 0 auto;
+        .stock-hero h1 {
+            font-size: 26px;
+            margin: 0;
                 display: flex;
-                flex-direction: column;
-            }
-
-            /* Đảm bảo pc-container chiếm hết chiều cao */
-            .pc-container {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-            }
-
-            .pc-content {
-                flex: 1;
-            }
-
-            /* Footer luôn ở dưới cùng */
-            .footer-section {
-                flex-shrink: 0;
-                margin-top: auto;
-            }
-
-            /* Đảm bảo card trong kho có chiều cao phù hợp */
-            .card {
-                margin-bottom: 1rem;
-            }
-
-            /* Table responsive */
-            .table-responsive {
-                max-height: 60vh;
-                overflow-y: auto;
-            }
-
-            /* Style cho action icons */
-            .action-icons {
-                display: flex;
-                justify-content: center;
                 align-items: center;
                 gap: 12px;
             }
 
-            .action-icons a {
-                text-decoration: none;
-                display: inline-flex;
+        .stock-hero p {
+            margin: 6px 0 0;
+            opacity: .85;
+            }
+
+        .hero-meta {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .hero-pill {
+            padding: 8px 16px;
+            background: rgba(148, 163, 184, 0.18);
+            border-radius: 999px;
+            font-size: 13px;
+            display: inline-flex;
                 align-items: center;
-                justify-content: center;
+            gap: 6px;
             }
 
-            .action-icons i {
-                width: 18px;
-                height: 18px;
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+            margin-bottom: 22px;
             }
 
-            /* Modal styles */
-            .modal-fade {
-                opacity: 0;
-                pointer-events: none;
-                transition: opacity 0.3s ease;
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100vw;
-                height: 100vh;
-                background: rgba(0,0,0,0.5);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 1050;
-                backdrop-filter: blur(4px);
-            }
-
-            .modal-fade.show {
-                opacity: 1;
-                pointer-events: auto;
-            }
-
-            .modal-content {
+        .stat-card {
                 background: #fff;
-                border-radius: 12px;
-                max-width: 600px;
-                width: 90vw;
-                margin: auto;
-                padding: 30px;
-                position: relative;
-                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 15px 35px rgba(15, 23, 42, 0.08);
+            border: 1px solid rgba(226, 232, 240, 0.8);
             }
 
-            .modal-header {
-                border-bottom: 1px solid #e9ecef;
-                padding-bottom: 15px;
-                margin-bottom: 20px;
-            }
-
-            .modal-header h5 {
+        .stat-card h3 {
                 margin: 0;
-                font-weight: 600;
-                color: #3f4d67;
+            font-size: 32px;
+            font-weight: 700;
+            color: #0f172a;
             }
 
-            .close-btn {
-                position: absolute;
-                top: 15px;
-                right: 15px;
-                background: none;
-                border: none;
-                font-size: 24px;
-                color: #6c757d;
-                cursor: pointer;
+        .stat-card p {
+            margin: 4px 0 0;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
             }
 
-            .close-btn:hover {
-                color: #495057;
-            }
-
-            /* CSS cho phần lọc mới */
-            .search-section {
-                background: white;
+        .filter-shell {
+            background: #fff;
+            border-radius: 16px;
                 padding: 20px;
-                border-radius: 12px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-                margin-bottom: 20px;
-                border: 1px solid #f0f0f0;
+            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.05);
+            border: 1px solid rgba(226, 232, 240, 0.7);
+            margin-bottom: 22px;
             }
             
-            .filter-section {
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            }
+            
+        .filter-row input {
+            border-radius: 12px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            padding: 10px 14px;
+            }
+            
+        .status-filter {
                 display: flex;
-                align-items: center;
-                flex-wrap: wrap;
-                gap: 15px;
-            }
-            
-            .search-results-info {
-                background: #f8f9fa;
-                padding: 6px 12px;
-                border-radius: 20px;
-                font-weight: 500;
-                color: #6c757d;
-            }
-            
-            .filter-buttons {
-                display: flex;
-                gap: 8px;
+            gap: 10px;
                 flex-wrap: wrap;
             }
             
-            .filter-btn {
-                border: 1px solid #dee2e6;
-                background: white;
-                color: #6c757d;
-                padding: 6px 12px;
-                border-radius: 20px;
-                font-size: 14px;
-                transition: all 0.2s ease;
+        .status-filter button {
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            background: #fff;
+            border-radius: 999px;
+            padding: 6px 14px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all .2s ease;
             }
             
-            .filter-btn.active {
-                background: #3f4d67;
-                color: white;
-                border-color: #3f4d67;
+        .status-filter button.active {
+            background: rgba(56, 189, 248, 0.12);
+            border-color: rgba(56, 189, 248, 0.6);
+            color: #0369a1;
             }
             
-            .filter-btn:hover {
-                background: #f8f9fa;
-                color: #3f4d67;
-            }
-            
-            .filter-label {
-                font-weight: 500;
-                color: #495057;
-                white-space: nowrap;
+        .table-container .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .stock-hero {
+                padding: 20px;
             }
 
-            /* Stats Cards */
-            .stats-cards {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 15px;
-                margin-bottom: 20px;
+            .stats-grid {
+                grid-template-columns: 1fr;
             }
-            
-            .stat-card {
-                background: white;
-                padding: 20px;
-                border-radius: 12px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-                text-align: center;
-                border-left: 4px solid #3f4d67;
-            }
-            
-            .stat-number {
-                font-size: 24px;
-                font-weight: 700;
-                color: #3f4d67;
-                margin-bottom: 5px;
-            }
-            
-            .stat-label {
-                color: #6c757d;
-                font-size: 14px;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px 20px;
+            color: #94a3b8;
             }
         </style>
     </head>
-
     <body>
-        <%@ include file="../layouts/loader-admin.html" %>
-        <%@ include file="../layouts/sidebar-admin.html" %>
-        <%@ include file="../layouts/header-content-admin.jsp" %>
+<%
+    KhoDenDAO stockDAO = new KhoDenDAO();
+    BienTheDenDAO variantDAO = new BienTheDenDAO();
+    DenDAO denDAO = new DenDAO();
+    MauSacDAO colorDAO = new MauSacDAO();
+    KichThuocDAO sizeDAO = new KichThuocDAO();
 
-        <!-- Main Content Wrapper -->
-        <div class="main-content-wrapper">
-            <!-- [ Main Content ] start -->
-            <div class="pc-container">
-                <div class="pc-content">
-                    <!-- Card Quản lý kho -->
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0">Quản lý kho sản phẩm</h5>
-                                <span class="badge bg-light text-dark">
-                                    <i class="fas fa-warehouse me-2"></i>
-                                    <%= new DAO.KhoDenDAO().getAll().size() %> sản phẩm trong kho
-                                </span>
+    List<KhoDen> stockList = stockDAO.getAll();
+    if (stockList == null) stockList = new ArrayList<>();
+    List<BienTheDen> variantList = variantDAO.getAll();
+    if (variantList == null) variantList = new ArrayList<>();
+    List<MauSac> colorList = colorDAO.getAll();
+    if (colorList == null) colorList = new ArrayList<>();
+    List<KichThuoc> sizeList = sizeDAO.getAll();
+    if (sizeList == null) sizeList = new ArrayList<>();
+    List<Den> lampList = denDAO.getAll();
+    if (lampList == null) lampList = new ArrayList<>();
+
+    Map<Integer, String> lampNameMap = new HashMap<>();
+    for (Den den : lampList) {
+        lampNameMap.put(den.getMaDen(), den.getTenDen());
+    }
+    Map<Integer, String> colorNameMap = new HashMap<>();
+    for (MauSac color : colorList) {
+        colorNameMap.put(color.getMaMau(), color.getTenMau());
+    }
+    Map<Integer, String> sizeNameMap = new HashMap<>();
+    for (KichThuoc size : sizeList) {
+        sizeNameMap.put(size.getMaKichThuoc(), size.getTenKichThuoc());
+    }
+    Map<Integer, BienTheDen> variantMap = new HashMap<>();
+    for (BienTheDen variant : variantList) {
+        variantMap.put(variant.getMaBienThe(), variant);
+    }
+    Set<Integer> variantInStock = new HashSet<>();
+    for (KhoDen stock : stockList) {
+        variantInStock.add(stock.getMaBienThe());
+    }
+
+    NumberFormat nf = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
+
+    int totalRecords = stockList.size();
+    int totalImported = 0;
+    int totalSold = 0;
+    int lowStockCount = 0;
+    for (KhoDen item : stockList) {
+        totalImported += item.getSoLuongNhap();
+        totalSold += item.getSoLuongBan();
+        int remain = item.getSoLuongNhap() - item.getSoLuongBan();
+        if (remain > 0 && remain <= 5) {
+            lowStockCount++;
+        }
+    }
+    int totalRemain = totalImported - totalSold;
+%>
+
+<jsp:include page="../layouts/sidebar-admin.html"/>
+<jsp:include page="../layouts/header-content-admin.jsp"/>
+
+<div class="pc-container stock-page">
+    <section class="stock-hero">
+        <div>
+            <h1><i class="fas fa-warehouse"></i> Kho hàng</h1>
+            <p>Theo dõi nhập - xuất và tồn kho cho từng biến thể.</p>
                             </div>
-                        </div>
-                        <div class="card-body">
-
-                            <%
-                                String msg = request.getParameter("msg");
-                                String error = request.getParameter("error");
-
-                                // Khai báo các DAO
-                                DAO.KhoDenDAO khoDAO = new DAO.KhoDenDAO();
-                                DAO.BienTheDenDAO bienTheDAO = new DAO.BienTheDenDAO();
-                                DAO.DenDAO denDAO = new DAO.DenDAO();
-                                DAO.MauSacDAO mauDAO = new DAO.MauSacDAO();
-                                DAO.KichThuocDAO kichThuocDAO = new DAO.KichThuocDAO();
-
-                                // Lấy danh sách biến thể để hiển thị trong combobox
-                                java.util.List<Model.BienTheDen> listBienThe = bienTheDAO.getAll();
-                                java.util.List<Model.KhoDen> listKho = khoDAO.getAll();
-
-                                // Tính toán thống kê
-                                int tongSanPham = listKho.size();
-                                int tongSoLuongNhap = listKho.stream().mapToInt(Model.KhoDen::getSoLuongNhap).sum();
-                                int tongSoLuongBan = listKho.stream().mapToInt(Model.KhoDen::getSoLuongBan).sum();
-                                int tongTonKho = tongSoLuongNhap - tongSoLuongBan;
-                                int soSanPhamTonKhoThap = (int) listKho.stream()
-                                    .filter(kho -> (kho.getSoLuongNhap() - kho.getSoLuongBan()) <= 5)
-                                    .count();
-                            %>
-                            <% if ("add_success".equals(msg)) { %>
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                Thêm kho thành công!
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div class="hero-meta">
+            <span class="hero-pill"><i class="fas fa-boxes"></i><%= totalRecords %> mục kho</span>
+            <span class="hero-pill"><i class="fas fa-arrow-down"></i><%= nf.format(totalImported) %> nhập</span>
+            <span class="hero-pill"><i class="fas fa-arrow-up"></i><%= nf.format(totalSold) %> bán</span>
+            <span class="hero-pill"><i class="fas fa-battery-quarter"></i><%= lowStockCount %> còn ít</span>
                             </div>
-                            <% } else if ("edit_success".equals(msg)) { %>
-                            <div class="alert alert-info alert-dismissible fade show" role="alert">
-                                Cập nhật thành công!
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                            <% } else if ("delete_success".equals(msg)) { %>
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                Xóa thành công!
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                            <% } else if (error != null) {%>
-                            <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                                <%= java.net.URLDecoder.decode(error, "UTF-8")%>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                            <% }%>
+    </section>
 
-                            <!-- Stats Cards -->
-                            <div class="stats-cards">
+    <section class="stats-grid">
                                 <div class="stat-card">
-                                    <div class="stat-number"><%= tongSanPham %></div>
-                                    <div class="stat-label">Tổng sản phẩm</div>
+            <h3><%= nf.format(totalImported) %></h3>
+            <p>Tổng số lượng nhập</p>
                                 </div>
                                 <div class="stat-card">
-                                    <div class="stat-number"><%= tongSoLuongNhap %></div>
-                                    <div class="stat-label">SL nhập</div>
+            <h3><%= nf.format(totalSold) %></h3>
+            <p>Tổng số lượng bán</p>
                                 </div>
                                 <div class="stat-card">
-                                    <div class="stat-number"><%= tongSoLuongBan %></div>
-                                    <div class="stat-label">SL bán</div>
+            <h3 class="<%= totalRemain <= 10 ? "text-danger" : "text-success" %>"><%= nf.format(totalRemain) %></h3>
+            <p>Số lượng tồn</p>
                                 </div>
                                 <div class="stat-card">
-                                    <div class="stat-number <%= tongTonKho <= 10 ? "text-danger" : "text-success" %>">
-                                        <%= tongTonKho %>
+            <h3 class="<%= lowStockCount > 0 ? "text-warning" : "text-success" %>"><%= lowStockCount %></h3>
+            <p>Sản phẩm gần hết</p>
                                     </div>
-                                    <div class="stat-label">Tồn kho</div>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-number <%= soSanPhamTonKhoThap > 0 ? "text-warning" : "text-success" %>">
-                                        <%= soSanPhamTonKhoThap %>
-                                    </div>
-                                    <div class="stat-label">SP tồn ít</div>
+    </section>
+
+    <section class="filter-shell">
+        <div class="filter-row align-items-end">
+            <div>
+                <label class="form-label">Tìm kiếm</label>
+                <div class="search-box" style="width:100%;">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Tìm theo tên đèn, màu sắc, kích thước..." onkeyup="applyFilters()">
                                 </div>
                             </div>
-
-                            <!-- PHẦN LỌC MỚI -->
-                            <div class="search-section">
-                                <!-- Search Row -->
-                                <div class="row mb-3">
-                                    <div class="col-md-8">
-                                        <div class="search-box">
-                                            <label for="searchInput" class="form-label fw-medium text-muted mb-2">Tìm kiếm sản phẩm trong kho</label>
-                                            <div class="input-group">
-                                                <span class="input-group-text bg-light border-end-0">
-                                                    <i class="fas fa-search"></i>
-                                                </span>
-                                                <input type="text" class="form-control border-start-0" 
-                                                       id="searchInput" placeholder="Nhập tên đèn, màu sắc, kích thước...">
-                                                <button class="btn btn-outline-secondary" type="button" id="clearSearch">
-                                                    <i class="fas fa-times"></i>
+            <div>
+                <label class="form-label"> </label>
+                <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
+                    <i class="fas fa-broom"></i> Xóa bộ lọc
+                </button>
+            </div>
+            <div class="text-end">
+                <label class="form-label"> </label>
+                <button class="btn-primary" onclick="showAddModal()">
+                    <i class="fas fa-plus-circle"></i> Thêm kho
                                                 </button>
                                             </div>
                                         </div>
+        <div class="mt-3 status-filter">
+            <button class="active" data-filter="all" onclick="setStatusFilter(this)">Tất cả</button>
+            <button data-filter="high" onclick="setStatusFilter(this)">Tồn kho cao</button>
+            <button data-filter="medium" onclick="setStatusFilter(this)">Tồn kho trung bình</button>
+            <button data-filter="low" onclick="setStatusFilter(this)">Tồn kho thấp</button>
+            <button data-filter="out" onclick="setStatusFilter(this)">Hết hàng</button>
                                     </div>
-                                </div>
+    </section>
                                 
-                                <!-- Filter Row -->
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div class="filter-section">
-                                                <span class="filter-label">Lọc theo:</span>
-                                                <div class="filter-buttons">
-                                                    <button class="filter-btn active" data-filter="all">Tất cả</button>
-                                                    <button class="filter-btn" data-filter="ton-cao">Tồn kho cao</button>
-                                                    <button class="filter-btn" data-filter="ton-trung-binh">Tồn kho TB</button>
-                                                    <button class="filter-btn" data-filter="ton-thap">Tồn kho thấp</button>
-                                                    <button class="filter-btn" data-filter="het-hang">Hết hàng</button>
-                                                </div>
-                                            </div>
-                                            
-                                            <!-- Hiển thị số kết quả -->
-                                            <div class="search-results-info">
-                                                <span id="searchResultsCount"><%= listKho.size() %></span> sản phẩm
-                                            </div>
-                                        </div>
-                                    </div>
+    <section class="table-container">
+        <div class="table-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <h3>Danh sách kho</h3>
+                <small id="tableSubtitle">Có <%= totalRecords %> mục trong kho</small>
                                 </div>
                             </div>
-
-                            <!-- Nút Thêm kho mới - GIỮ NGUYÊN -->
-                            <div class="mb-3">
-                                <button id="btnThemKhoMoi" type="button" class="btn btn-success d-flex align-items-center" style="gap: 6px;">
-                                    <i data-feather="plus"></i>
-                                    <span>Thêm kho mới</span>
-                                </button>
-                            </div>
-
-                            <!-- Bảng danh sách kho -->
                             <div class="table-responsive">
-                                <table class="table table-hover table-striped" id="khoTable">
-                                    <thead class="table-light">
+            <table class="products-table" id="stockTable">
+                <thead>
                                         <tr>
-                                            <th>Mã kho</th>
-                                            <th>Biến thể sản phẩm</th>
+                    <th>Kho</th>
+                    <th>Biến thể</th>
                                             <th>Số lượng nhập</th>
                                             <th>Số lượng bán</th>
                                             <th>Tồn kho</th>
-                                            <th>Cập nhật gần nhất</th>
-                                            <th style="width: 120px; text-align: center;">Hành động</th>
+                    <th>Cập nhật</th>
+                    <th>Thao tác</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <%
-                                            for (Model.KhoDen kho : listKho) {
-                                                int tonKho = kho.getSoLuongNhap() - kho.getSoLuongBan();
-                                                String safeIdStr = String.valueOf(kho.getMaKho());
-
-                                                // Lấy thông tin biến thể để hiển thị tên
-                                                Model.BienTheDen bienThe = bienTheDAO.getById(kho.getMaBienThe());
-                                                String tenBienThe = "Không tìm thấy";
-
-                                                if (bienThe != null) {
-                                                    String tenDen = denDAO.getTenDenById(bienThe.getMaDen());
-                                                    String tenMau = (bienThe.getMaMau() != null && bienThe.getMaMau() != 0)
-                                                            ? mauDAO.getTenMauById(bienThe.getMaMau()) : "Không màu";
-                                                    String tenKichThuoc = (bienThe.getMaKichThuoc() != null && bienThe.getMaKichThuoc() != 0)
-                                                            ? kichThuocDAO.getTenKichThuocById(bienThe.getMaKichThuoc()) : "Không kích thước";
-
-                                                    tenBienThe = tenDen + " - Màu: " + tenMau + " - KT: " + tenKichThuoc;
-                                                }
-
-                                                // Xác định trạng thái tồn kho để lọc
-                                                String tonKhoClass = "";
-                                                if (tonKho <= 0) {
-                                                    tonKhoClass = "het-hang";
-                                                } else if (tonKho <= 5) {
-                                                    tonKhoClass = "ton-thap";
-                                                } else if (tonKho <= 20) {
-                                                    tonKhoClass = "ton-trung-binh";
-                                                } else {
-                                                    tonKhoClass = "ton-cao";
-                                                }
+                <% if (stockList.isEmpty()) { %>
+                    <tr>
+                        <td colspan="7">
+                            <div class="no-data">
+                                <i class="fas fa-box-open"></i>
+                                Chưa có dữ liệu kho.
+                            </div>
+                        </td>
+                    </tr>
+                <% } else {
+                    for (KhoDen stock : stockList) {
+                        int imported = stock.getSoLuongNhap();
+                        int sold = stock.getSoLuongBan();
+                        int remain = imported - sold;
+                        String status = remain <= 0 ? "out" : remain <= 5 ? "low" : remain <= 20 ? "medium" : "high";
+                        BienTheDen variant = variantMap.get(stock.getMaBienThe());
+                        String productName = "Không xác định";
+                        String colorName = "-";
+                        String sizeName = "-";
+                        if (variant != null) {
+                            productName = lampNameMap.getOrDefault(variant.getMaDen(), "Không xác định");
+                            if (variant.getMaMau() != null && variant.getMaMau() != 0) {
+                                colorName = colorNameMap.getOrDefault(variant.getMaMau(), "Không màu");
+                            }
+                            if (variant.getMaKichThuoc() != null && variant.getMaKichThuoc() != 0) {
+                                sizeName = sizeNameMap.getOrDefault(variant.getMaKichThuoc(), "Không kích thước");
+                            }
+                        }
+                        String keywords = (productName + " " + colorName + " " + sizeName).toLowerCase();
                                         %>
-                                        <tr data-tonkho="<%= tonKhoClass %>" data-search="<%= tenBienThe.toLowerCase() %>">
-                                            <td><strong><%= kho.getMaKho()%></strong></td>
+                <tr data-status="<%= status %>" data-keywords="<%= keywords %>">
+                    <td><strong>#<%= stock.getMaKho() %></strong></td>
                                             <td>
-                                                <div>
-                                                    <div><strong><%= tenBienThe%></strong></div>
-                                                    <small class="text-muted">Mã biến thể: <%= kho.getMaBienThe()%></small>
+                        <div class="product-info">
+                            <h4 class="product-name"><%= productName %></h4>
+                            <div class="product-details">
+                                <span class="category"><i class="fas fa-palette"></i> <%= colorName %></span>
+                                <span class="supplier"><i class="fas fa-ruler"></i> <%= sizeName %></span>
+                            </div>
+                            <small class="text-muted">Mã biến thể: <%= stock.getMaBienThe() %></small>
                                                 </div>
                                             </td>
-                                            <td><span class="badge bg-primary"><%= kho.getSoLuongNhap()%></span></td>
-                                            <td><span class="badge bg-info"><%= kho.getSoLuongBan()%></span></td>
+                    <td><span class="badge bg-primary"><%= imported %></span></td>
+                    <td><span class="badge bg-info text-dark"><%= sold %></span></td>
                                             <td>
-                                                <span class="badge <%= tonKho > 10 ? "bg-success" : (tonKho > 0 ? "bg-warning" : "bg-danger")%>">
-                                                    <%= tonKho%>
+                        <span class="badge <%= remain <= 0 ? "bg-danger" : remain <= 5 ? "bg-warning text-dark" : "bg-success" %>">
+                            <%= remain %>
                                                 </span>
                                             </td>
-                                            <td><small><%= kho.getCapNhatGanNhat() != null ? kho.getCapNhatGanNhat().toString() : "Chưa cập nhật"%></small></td>
-                                            <td style="text-align: center; vertical-align: middle;">
-                                                <div class="action-icons">
-                                                    <!-- Sử dụng icon giống hệt mẫu -->
-                                                    <a href="#" title="Sửa" class="text-warning btn-edit-kho"
-                                                       data-id="<%= safeIdStr%>"
-                                                       data-mabienthe="<%= kho.getMaBienThe()%>"
-                                                       data-slnhap="<%= kho.getSoLuongNhap()%>"
-                                                       data-slban="<%= kho.getSoLuongBan()%>">
-                                                        <i data-feather="edit"></i>
-                                                    </a>
-                                                    <a href="#" title="Xóa" class="text-danger btn-delete-kho"
-                                                       data-id="<%= safeIdStr%>">
-                                                        <i data-feather="trash-2"></i>
-                                                    </a>
+                    <td><small><%= stock.getCapNhatGanNhat() != null ? stock.getCapNhatGanNhat() : "Chưa cập nhật" %></small></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-edit"
+                                    data-id="<%= stock.getMaKho() %>"
+                                    data-variant="<%= stock.getMaBienThe() %>"
+                                    data-imported="<%= imported %>"
+                                    data-sold="<%= sold %>">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-action btn-delete"
+                                    data-id="<%= stock.getMaKho() %>"
+                                    data-name="<%= productName.replace("\"","&quot;") %>">
+                                <i class="fas fa-trash"></i>
+                            </button>
                                                 </div>
                                             </td>
                                         </tr>
-                                        <% }%>
+                <%  }
+                    } %>
                                     </tbody>
                                 </table>
                             </div>
+    </section>
+        </div>
+
+<div id="stockModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3 id="modalTitle"><i class="fas fa-plus-circle"></i> Thêm kho</h3>
+            <button class="close-btn" onclick="closeModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <form id="stockForm" method="post">
+            <div class="modal-body">
+                <input type="hidden" id="maKho" name="maKho">
+                <div class="form-group">
+                    <label for="maBienThe">Biến thể</label>
+                    <select id="maBienThe" name="maBienThe" required>
+                        <option value="">Chọn biến thể</option>
+                        <% for (BienTheDen variant : variantList) {
+                            String productName = lampNameMap.getOrDefault(variant.getMaDen(), "Không xác định");
+                            String colorName = "-";
+                            String sizeName = "-";
+                            if (variant.getMaMau() != null && variant.getMaMau() != 0) {
+                                colorName = colorNameMap.getOrDefault(variant.getMaMau(), "Không màu");
+                            }
+                            if (variant.getMaKichThuoc() != null && variant.getMaKichThuoc() != 0) {
+                                sizeName = sizeNameMap.getOrDefault(variant.getMaKichThuoc(), "Không kích thước");
+                            }
+                            boolean already = variantInStock.contains(variant.getMaBienThe());
+                                %>
+                        <option value="<%= variant.getMaBienThe() %>">
+                            <%= productName %> - Màu: <%= colorName %> - KT: <%= sizeName %><%= already ? " (đã có)" : "" %>
+                                </option>
+                        <% } %>
+                            </select>
                         </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="soLuongNhap">Số lượng nhập *</label>
+                        <input type="number" id="soLuongNhap" name="soLuongNhap" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="soLuongBan">Số lượng bán *</label>
+                        <input type="number" id="soLuongBan" name="soLuongBan" min="0" required>
                     </div>
                 </div>
             </div>
-            <!-- [ Main Content ] end -->
-        </div>
-
-        <!-- Footer Section -->
-        <div class="footer-section">
-            <%@ include file="../layouts/footer-block-admin.html" %>
-        </div>
-
-        <!-- Modal Thêm/Sửa Kho -->
-        <div id="khoModal" class="modal-fade">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 id="modalTitle">Thêm kho mới</h5>
-                    <button type="button" class="close-btn" id="btnCloseModal">&times;</button>
-                </div>
-                <form id="khoForm" action="<%=request.getContextPath()%>/them-kho" method="post">
-                    <input type="hidden" id="maKho" name="maKho" />
-                    <div class="row">
-                        <div class="col-md-12 mb-3">
-                            <label for="maBienThe" class="form-label">Biến thể sản phẩm</label>
-                            <select class="form-select" id="maBienThe" name="maBienThe" required>
-                                <option value="">-- Chọn biến thể --</option>
-                                <%
-                                    DAO.KhoDenDAO khoDenDAO = new DAO.KhoDenDAO();
-                                    for (Model.BienTheDen bienThe : listBienThe) {
-                                        // Kiểm tra xem biến thể đã có trong kho chưa
-                                        if (!khoDenDAO.isBienTheExists(bienThe.getMaBienThe())) {
-                                            // Lấy thông tin chi tiết của biến thể
-                                            String tenDen = denDAO.getTenDenById(bienThe.getMaDen());
-                                            String tenMau = (bienThe.getMaMau() != null && bienThe.getMaMau() != 0)
-                                                    ? mauDAO.getTenMauById(bienThe.getMaMau()) : "Không màu";
-                                            String tenKichThuoc = (bienThe.getMaKichThuoc() != null && bienThe.getMaKichThuoc() != 0)
-                                                    ? kichThuocDAO.getTenKichThuocById(bienThe.getMaKichThuoc()) : "Không kích thước";
-
-                                            String displayText = tenDen + " - Màu: " + tenMau + " - KT: " + tenKichThuoc;
-                                %>
-                                <option value="<%= bienThe.getMaBienThe()%>">
-                                    <%= displayText%>
-                                </option>
-                                <%
-                                        } // end if
-                                    } // end for
-                                %>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="soLuongNhap" class="form-label">Số lượng nhập</label>
-                            <input type="number" class="form-control" id="soLuongNhap" name="soLuongNhap" required min="0" />
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="soLuongBan" class="form-label">Số lượng bán</label>
-                            <input type="number" class="form-control" id="soLuongBan" name="soLuongBan" required min="0" />
-                        </div>
-                    </div>
-                    <div class="mt-4 d-flex justify-content-end gap-2">
-                        <button type="button" class="btn btn-secondary" id="btnCancel">Hủy</button>
-                        <button type="submit" class="btn btn-primary" id="btnSubmit">Thêm mới</button>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeModal()">
+                    <i class="fas fa-times"></i> Hủy
+                </button>
+                <button type="submit" class="btn-primary" id="stockSubmitBtn">
+                    <i class="fas fa-save"></i> Lưu
+                </button>
                     </div>
                 </form>
             </div>
         </div>
 
+<div id="deleteModal" class="modal-overlay">
+    <div class="modal-container small">
+        <div class="modal-header danger">
+            <h3><i class="fas fa-exclamation-triangle"></i> Xóa mục kho</h3>
+        </div>
+        <div class="modal-body">
+            <p>Bạn chắc chắn muốn xóa kho <strong id="deleteStockName"></strong>?</p>
+            <p class="warning">Hành động này không thể hoàn tác.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" onclick="closeDeleteModal()">
+                <i class="fas fa-times"></i> Hủy
+            </button>
+            <button type="button" class="btn-danger" id="confirmDeleteBtn">
+                <i class="fas fa-trash"></i> Xóa
+            </button>
+        </div>
+    </div>
+</div>
+
         <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                // === PHẦN LỌC MỚI ===
                 const searchInput = document.getElementById('searchInput');
-                const clearSearch = document.getElementById('clearSearch');
-                const khoTable = document.getElementById('khoTable');
-                const searchResultsCount = document.getElementById('searchResultsCount');
-                
-                // TÌM KIẾM SẢN PHẨM TRONG KHO
-                if (searchInput) {
-                    searchInput.addEventListener('input', function(e) {
-                        const searchTerm = e.target.value.toLowerCase().trim();
-                        const rows = khoTable.querySelectorAll('tbody tr');
-                        let visibleCount = 0;
-                        
-                        rows.forEach(row => {
-                            const searchData = row.getAttribute('data-search');
-                            
-                            if (searchData.includes(searchTerm)) {
-                                row.style.display = '';
-                                visibleCount++;
-                            } else {
-                                row.style.display = 'none';
-                            }
-                        });
-                        
-                        // Cập nhật số kết quả
-                        if (searchResultsCount) {
-                            searchResultsCount.textContent = visibleCount;
-                        }
-                    });
-                }
-                
-                if (clearSearch) {
-                    clearSearch.addEventListener('click', function() {
+    const tableSubtitle = document.getElementById('tableSubtitle');
+    const rows = document.querySelectorAll('#stockTable tbody tr');
+    const statusButtons = document.querySelectorAll('.status-filter button');
+    const stockModal = document.getElementById('stockModal');
+    const stockForm = document.getElementById('stockForm');
+    const modalTitle = document.getElementById('modalTitle');
+    const stockSubmitBtn = document.getElementById('stockSubmitBtn');
+    const deleteModal = document.getElementById('deleteModal');
+    const deleteName = document.getElementById('deleteStockName');
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+
+    let deleteId = null;
+
+    function setStatusFilter(btn) {
+        statusButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        applyFilters();
+    }
+
+    function clearFilters() {
                         searchInput.value = '';
-                        searchInput.dispatchEvent(new Event('input'));
-                        searchInput.focus();
-                    });
-                }
-                
-                // LỌC THEO TÌNH TRẠNG TỒN KHO
-                const filterButtons = document.querySelectorAll('.filter-btn');
-                filterButtons.forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        // Xóa active class từ tất cả buttons
-                        filterButtons.forEach(b => b.classList.remove('active'));
-                        // Thêm active class cho button được click
-                        this.classList.add('active');
-                        
-                        const filterValue = this.getAttribute('data-filter');
-                        const rows = khoTable.querySelectorAll('tbody tr');
-                        let visibleCount = 0;
+        setStatusFilter(statusButtons[0]);
+    }
+
+    function applyFilters() {
+        const term = searchInput.value.trim().toLowerCase();
+        const status = document.querySelector('.status-filter button.active').dataset.filter;
+        let visible = 0;
                         
                         rows.forEach(row => {
-                            if (filterValue === 'all') {
-                                row.style.display = '';
-                                visibleCount++;
-                            } else {
-                                const rowTonKho = row.getAttribute('data-tonkho');
-                                if (rowTonKho === filterValue) {
-                                    row.style.display = '';
-                                    visibleCount++;
-                                } else {
-                                    row.style.display = 'none';
-                                }
-                            }
-                        });
-                        
-                        // Cập nhật số kết quả
-                        if (searchResultsCount) {
-                            searchResultsCount.textContent = visibleCount;
+            const matchesSearch = !term || row.dataset.keywords.includes(term);
+            const matchesStatus = status === 'all' || row.dataset.status === status;
+            const show = matchesSearch && matchesStatus;
+            row.style.display = show ? '' : 'none';
+            if (show) visible++;
+        });
+
+        if (tableSubtitle) {
+            tableSubtitle.textContent = `Đang hiển thị ${visible} mục kho`;
                         }
+    }
+
+    function showAddModal() {
+        stockForm.reset();
+        document.getElementById('maKho').value = '';
+        modalTitle.innerHTML = '<i class="fas fa-plus-circle"></i> Thêm kho';
+        stockForm.action = '<%=request.getContextPath()%>/them-kho';
+        stockSubmitBtn.innerHTML = '<i class="fas fa-save"></i> Thêm kho';
+        stockSubmitBtn.disabled = false;
+        stockModal.classList.add('show');
+    }
+
+    function showEditModal(button) {
+        stockForm.reset();
+        document.getElementById('maKho').value = button.getAttribute('data-id');
+        document.getElementById('maBienThe').value = button.getAttribute('data-variant');
+        document.getElementById('soLuongNhap').value = button.getAttribute('data-imported');
+        document.getElementById('soLuongBan').value = button.getAttribute('data-sold');
+        modalTitle.innerHTML = '<i class="fas fa-edit"></i> Cập nhật kho';
+        stockForm.action = '<%=request.getContextPath()%>/sua-kho';
+        stockSubmitBtn.innerHTML = '<i class="fas fa-save"></i> Cập nhật';
+        stockSubmitBtn.disabled = false;
+        stockModal.classList.add('show');
+                }
+
+    function closeModal() {
+        stockModal.classList.remove('show');
+                }
+
+    function showDeleteModal(button) {
+        deleteId = button.getAttribute('data-id');
+        deleteName.textContent = button.getAttribute('data-name');
+        confirmDeleteBtn.disabled = false;
+        confirmDeleteBtn.innerHTML = '<i class="fas fa-trash"></i> Xóa';
+        deleteModal.classList.add('show');
+                }
+
+    function closeDeleteModal() {
+        deleteModal.classList.remove('show');
+        deleteId = null;
+    }
+
+    document.querySelectorAll('.btn-edit').forEach(btn => {
+        btn.addEventListener('click', () => showEditModal(btn));
                     });
-                });
 
-                // === PHẦN CODE HIỆN CỦA BẠN - GIỮ NGUYÊN ===
-                const khoModal = document.getElementById('khoModal');
-                const modalTitle = document.getElementById('modalTitle');
-                const khoForm = document.getElementById('khoForm');
-                const btnThemKhoMoi = document.getElementById('btnThemKhoMoi');
-                const btnSubmit = document.getElementById('btnSubmit');
-                const btnCancel = document.getElementById('btnCancel');
-                const btnCloseModal = document.getElementById('btnCloseModal');
-                const maKhoInput = document.getElementById('maKho');
-                const maBienTheSelect = document.getElementById('maBienThe');
-                const soLuongNhapInput = document.getElementById('soLuongNhap');
-                const soLuongBanInput = document.getElementById('soLuongBan');
+    document.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', () => showDeleteModal(btn));
+    });
 
-                // === HÀM HIỂN THỊ MODAL ===
-                function showModal() {
-                    khoModal.classList.add('show');
-                }
-
-                // === HÀM ẨN MODAL ===
-                function hideModal() {
-                    khoModal.classList.remove('show');
-                }
-
-                // === HÀM RESET FORM ===
-                function resetForm() {
-                    khoForm.reset();
-                    maKhoInput.value = '';
-                    modalTitle.textContent = 'Thêm kho mới';
-                    btnSubmit.textContent = 'Thêm mới';
-                    khoForm.action = '<%=request.getContextPath()%>/them-kho';
-
-                    // Xóa validation states
-                    soLuongNhapInput.classList.remove('is-invalid');
-                    soLuongBanInput.classList.remove('is-invalid');
-                }
-
-                // === 1. NÚT "THÊM KHO MỚI" - GIỮ NGUYÊN ===
-                if (btnThemKhoMoi) {
-                    btnThemKhoMoi.addEventListener('click', function () {
-                        resetForm();
-                        showModal();
+    confirmDeleteBtn.addEventListener('click', () => {
+        if (!deleteId) return;
+        confirmDeleteBtn.disabled = true;
+        confirmDeleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xóa...';
+        window.location.href = '<%=request.getContextPath()%>/xoa-kho?id=' + encodeURIComponent(deleteId);
                     });
-                }
 
-                // === 2. NÚT "SỬA" - GIỮ NGUYÊN ===
-                document.querySelectorAll('.btn-edit-kho').forEach(btn => {
-                    btn.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        const data = this.dataset;
+    stockForm.addEventListener('submit', function (e) {
+        stockSubmitBtn.disabled = true;
+        stockSubmitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang lưu...';
+    });
 
-                        // Điền dữ liệu vào form
-                        maKhoInput.value = data.id;
-                        maBienTheSelect.value = data.mabienthe;
-                        soLuongNhapInput.value = data.slnhap;
-                        soLuongBanInput.value = data.slban;
-
-                        // Thay đổi form thành chế độ sửa
-                        modalTitle.textContent = 'Sửa thông tin kho - Mã: ' + data.id;
-                        btnSubmit.textContent = 'Cập nhật';
-                        khoForm.action = '<%=request.getContextPath()%>/sua-kho';
-
-                        // Hiển thị modal
-                        showModal();
-                    });
-                });
-
-                // === 3. NÚT "XÓA" - GIỮ NGUYÊN ===
-                document.querySelectorAll('.btn-delete-kho').forEach(btn => {
-                    btn.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        const id = this.dataset.id;
-                        const row = this.closest('tr');
-                        const tenBienThe = row.cells[1].querySelector('div > strong').textContent;
-
-                        if (!id || id.trim() === '' || isNaN(parseInt(id))) {
-                            alert('Lỗi: Không tìm thấy Mã Kho hợp lệ để xóa. ID: ' + id);
-                            return;
-                        }
-
-                        if (confirm('Bạn có chắc muốn xóa kho mã ' + id + ' (' + tenBienThe + ') không?')) {
-                            window.location.href = '<%= request.getContextPath()%>/xoa-kho?id=' + encodeURIComponent(id);
-                        }
-                    });
-                });
-
-                // === 4. NÚT "HỦY" VÀ ĐÓNG MODAL ===
-                if (btnCancel) {
-                    btnCancel.addEventListener('click', function () {
-                        resetForm();
-                        hideModal();
-                    });
-                }
-
-                if (btnCloseModal) {
-                    btnCloseModal.addEventListener('click', function () {
-                        resetForm();
-                        hideModal();
-                    });
-                }
-
-                // Đóng modal khi click bên ngoài
-                khoModal.addEventListener('click', function (e) {
-                    if (e.target === khoModal) {
-                        resetForm();
-                        hideModal();
-                    }
-                });
-
-                // === 5. VALIDATE SỐ LƯỢNG ===
-                function validateSoLuong() {
-                    const slNhap = parseInt(soLuongNhapInput.value) || 0;
-                    const slBan = parseInt(soLuongBanInput.value) || 0;
-
-                    if (slBan > slNhap) {
-                        soLuongBanInput.classList.add('is-invalid');
-                        return false;
-                    } else {
-                        soLuongBanInput.classList.remove('is-invalid');
-                        return true;
-                    }
-                }
-
-                // === 6. XỬ LÝ SUBMIT FORM ===
-                if (khoForm) {
-                    khoForm.addEventListener('submit', function (e) {
-                        e.preventDefault();
-
-                        // Validate số lượng
-                        if (!validateSoLuong()) {
-                            alert('Lỗi: Số lượng bán không được lớn hơn số lượng nhập!');
-                            return;
-                        }
-
-                        // Validate chọn biến thể
-                        if (!maBienTheSelect.value) {
-                            alert('Vui lòng chọn biến thể sản phẩm!');
-                            maBienTheSelect.focus();
-                            return;
-                        }
-
-                        // Nếu đang thêm mới, submit bình thường
-                        if (khoForm.action.includes('them-kho')) {
-                            khoForm.submit();
-                            return;
-                        }
-
-                        // Nếu đang sửa, sử dụng fetch để không reload trang
-                        const formData = new FormData(khoForm);
-                        const params = new URLSearchParams();
-
-                        for (const [key, value] of formData) {
-                            params.append(key, value);
-                        }
-
-                        fetch(khoForm.action, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                            },
-                            body: params
-                        })
-                                .then(response => {
-                                    if (!response.ok) {
-                                        throw new Error('Lỗi kết nối: ' + response.status);
-                                    }
-                                    return response.json();
-                                })
-                                .then(data => {
-                                    if (data.success) {
-                                        // Reload trang để cập nhật dữ liệu
-                                        window.location.href = '<%= request.getContextPath()%>/quan-ly-kho?msg=edit_success';
-                                    } else {
-                                        alert('Lỗi: ' + (data.message || 'Cập nhật thất bại'));
-                                    }
-                                })
-                                .catch(error => {
-                                    console.error('Error:', error);
-                                    alert('Lỗi kết nối: ' + error.message);
+    stockModal.addEventListener('click', (e) => {
+        if (e.target === stockModal) closeModal();
                                 });
-                    });
-                }
-
-                // === 7. VALIDATE REAL-TIME ===
-                soLuongNhapInput.addEventListener('input', validateSoLuong);
-                soLuongBanInput.addEventListener('input', validateSoLuong);
-
-                // === 8. KHỞI TẠO FEATHER ICONS ===
-                if (typeof feather !== 'undefined') {
-                    feather.replace();
-                }
+    deleteModal.addEventListener('click', (e) => {
+        if (e.target === deleteModal) closeDeleteModal();
             });
         </script>
-
-        <%@ include file="../layouts/footer-js-admin.html" %>
     </body>
 </html>

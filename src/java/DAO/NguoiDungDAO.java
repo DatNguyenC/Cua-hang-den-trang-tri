@@ -209,6 +209,79 @@ public class NguoiDungDAO {
         }
     }
     
+    public boolean updateTenDangNhap(int maND, String tenDangNhap) {
+        // Kiểm tra tên đăng nhập đã tồn tại chưa (trừ chính user hiện tại)
+        String checkSql = "SELECT COUNT(*) FROM nguoi_dung WHERE ten_dang_nhap = ? AND ma_nd != ?";
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+            
+            checkStmt.setString(1, tenDangNhap);
+            checkStmt.setInt(2, maND);
+            ResultSet rs = checkStmt.executeQuery();
+            
+            if (rs.next() && rs.getInt(1) > 0) {
+                // Tên đăng nhập đã tồn tại
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        
+        // Cập nhật tên đăng nhập
+        String sql = "UPDATE nguoi_dung SET ten_dang_nhap = ? WHERE ma_nd = ?";
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, tenDangNhap);
+            pstmt.setInt(2, maND);
+            
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    public boolean updateUserInfo(int maND, String tenDangNhap, String email) {
+        // Kiểm tra tên đăng nhập đã tồn tại chưa (trừ chính user hiện tại)
+        String checkSql = "SELECT COUNT(*) FROM nguoi_dung WHERE ten_dang_nhap = ? AND ma_nd != ?";
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+            
+            checkStmt.setString(1, tenDangNhap);
+            checkStmt.setInt(2, maND);
+            ResultSet rs = checkStmt.executeQuery();
+            
+            if (rs.next() && rs.getInt(1) > 0) {
+                // Tên đăng nhập đã tồn tại
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        
+        // Cập nhật cả tên đăng nhập và email
+        String sql = "UPDATE nguoi_dung SET ten_dang_nhap = ?, email = ? WHERE ma_nd = ?";
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, tenDangNhap);
+            pstmt.setString(2, email);
+            pstmt.setInt(3, maND);
+            
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
     public boolean checkCurrentPassword(int maND, String currentPassword) {
         String sql = "SELECT mat_khau FROM nguoi_dung WHERE ma_nd = ?";
         try (Connection conn = DBConnect.getConnection();

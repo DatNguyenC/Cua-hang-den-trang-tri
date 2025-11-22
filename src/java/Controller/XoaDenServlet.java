@@ -35,7 +35,7 @@ public class XoaDenServlet extends HttpServlet {
         }
 
         // Quay lại trang danh sách đèn
-        response.sendRedirect("elements/ShopItem.jsp");
+        response.sendRedirect(request.getContextPath() + "/elements/ShopItem.jsp");
     }
 
 

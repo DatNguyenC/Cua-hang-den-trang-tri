@@ -19,48 +19,58 @@ public class UpdateUserInfoServlet extends HttpServlet {
         NguoiDung user = (NguoiDung) session.getAttribute("user");
         
         if (user == null) {
-            response.sendRedirect(request.getContextPath() + "/elements/AccountInfo.jsp");
+            response.sendRedirect(request.getContextPath() + "/View/userLogin.jsp");
             return;
         }
         
-        String email = request.getParameter("email");
+        String tenDangNhap = request.getParameter("tenDangNhap");
         
         // Kiểm tra dữ liệu
-        if (email == null || email.trim().isEmpty()) {
-            request.setAttribute("errorMessage", "Email không được để trống");
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/elements/AccountInfo.jsp");
-            dispatcher.forward(request, response);
+        if (tenDangNhap == null || tenDangNhap.trim().isEmpty()) {
+            session.setAttribute("errorMessage", "Tên đăng nhập không được để trống");
+            response.sendRedirect(request.getContextPath() + "/UserAccountServlet");
             return;
         }
         
-        // Kiểm tra định dạng email
-        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
-        if (!email.matches(emailRegex)) {
-            request.setAttribute("errorMessage", "Địa chỉ email không hợp lệ");
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/elements/AccountInfo.jsp");
-            dispatcher.forward(request, response);
+        tenDangNhap = tenDangNhap.trim();
+        
+        // Kiểm tra độ dài tên đăng nhập
+        if (tenDangNhap.length() < 3 || tenDangNhap.length() > 50) {
+            session.setAttribute("errorMessage", "Tên đăng nhập phải có từ 3 đến 50 ký tự");
+            response.sendRedirect(request.getContextPath() + "/UserAccountServlet");
+            return;
+        }
+        
+        // Kiểm tra định dạng tên đăng nhập (chỉ cho phép chữ, số, dấu gạch dưới)
+        String usernameRegex = "^[a-zA-Z0-9_]+$";
+        if (!tenDangNhap.matches(usernameRegex)) {
+            session.setAttribute("errorMessage", "Tên đăng nhập chỉ được chứa chữ cái, số và dấu gạch dưới");
+            response.sendRedirect(request.getContextPath() + "/UserAccountServlet");
             return;
         }
         
         try {
             NguoiDungDAO nguoiDungDAO = new NguoiDungDAO();
-            boolean success = nguoiDungDAO.updateUserEmail(user.getMaND(), email);
+            boolean success = nguoiDungDAO.updateTenDangNhap(user.getMaND(), tenDangNhap);
             
             if (success) {
                 // Cập nhật thông tin trong session
-                user.setEmail(email);
+                user.setTenDangNhap(tenDangNhap);
                 session.setAttribute("user", user);
                 
-                request.setAttribute("successMessage", "Cập nhật thông tin thành công!");
+                // Lưu message vào session để hiển thị sau redirect
+                session.setAttribute("successMessage", "Cập nhật thông tin thành công!");
+                session.removeAttribute("errorMessage");
             } else {
-                request.setAttribute("errorMessage", "Có lỗi xảy ra khi cập nhật thông tin");
+                session.setAttribute("errorMessage", "Tên đăng nhập đã tồn tại hoặc có lỗi xảy ra");
+                session.removeAttribute("successMessage");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("errorMessage", "Có lỗi xảy ra: " + e.getMessage());
+            session.setAttribute("errorMessage", "Có lỗi xảy ra: " + e.getMessage());
+            session.removeAttribute("successMessage");
         }
         
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/elements/AccountInfo.jsp");
-        dispatcher.forward(request, response);
+        response.sendRedirect(request.getContextPath() + "/UserAccountServlet");
     }
 }

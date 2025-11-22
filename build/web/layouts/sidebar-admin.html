@@ -1,424 +1,176 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<!-- [ Sidebar Menu ] start -->
-<nav class="pc-sidebar">
-    <div class="navbar-wrapper">
-        <div class="m-header flex items-center py-4 px-6 h-header-height">
-            <a href="../View/AdminHome.jsp" class="b-brand flex items-center gap-3">
-                <!-- ========   Change your logo from here   ============ -->
-                <img src="../assets/images/logo-white.svg" class="img-fluid logo logo-lg" alt="logo" />
-                <img src="../assets/images/favicon.svg" class="img-fluid logo logo-sm" alt="logo" />
-            </a>
-        </div>
-        <div class="navbar-content h-[calc(100vh_-_74px)] py-2.5">
-            <ul class="pc-navbar">
-                <li class="pc-item pc-caption">
-                    <label>Trang chính</label>
-                </li>
-                <li class="pc-item">
-                    <a href="../View/AdminHome.jsp" class="pc-link transition-all duration-300 ease-in-out">
-                        <span class="pc-micon transition-transform duration-300">
-                            <i data-feather="home"></i>
-                        </span>
-                        <span class="pc-mtext transition-all duration-300">Trang chủ</span>
-                    </a>
-                </li>
-                
-                <li class="pc-item pc-caption">
-                    <label>Sản phẩm</label>
-                    <i data-feather="feather"></i>
-                </li>
-                <li class="pc-item pc-hasmenu">
-                    <a href="../elements/ShopItem.jsp" class="pc-link transition-all duration-300 ease-in-out">
-                        <span class="pc-micon transition-transform duration-300"> 
-                            <i data-feather="box"></i>
-                        </span>
-                        <span class="pc-mtext transition-all duration-300">Thông tin sản phẩm</span>
-                    </a>
-                </li>
-                <li class="pc-item pc-hasmenu">
-                    <a href="../elements/ItemDetail.jsp" class="pc-link transition-all duration-300 ease-in-out">
-                        <span class="pc-micon transition-transform duration-300"> 
-                            <i data-feather="package"></i>
-                        </span>
-                        <span class="pc-mtext transition-all duration-300">Chi tiết các sản phẩm</span>
-                    </a>
-                </li>
-                <li class="pc-item pc-hasmenu">
-                    <a href="../elements/ProductStorage.jsp" class="pc-link transition-all duration-300 ease-in-out">
-                        <span class="pc-micon transition-transform duration-300"> 
-                            <i data-feather="truck"></i>
-                        </span>
-                        <span class="pc-mtext transition-all duration-300">Kho sản phẩm</span>
-                    </a>
-                </li>
 
-                <li class="pc-item pc-caption">
-                    <label>Tài khoản</label>
-                    <i data-feather="monitor"></i>
-                </li>
-                <li class="pc-item pc-hasmenu">
-                    <a href="../elements/AccountInfo.jsp" class="pc-link transition-all duration-300 ease-in-out">
-                        <span class="pc-micon transition-transform duration-300"> 
-                            <i data-feather="lock"></i>
-                        </span>
-                        <span class="pc-mtext transition-all duration-300">Thông tin tài khoản</span>
-                    </a>
-                </li>
-                <li class="pc-item pc-hasmenu">
-                    <a href="../elements/UserAccount.jsp" class="pc-link transition-all duration-300 ease-in-out">
-                        <span class="pc-micon transition-transform duration-300"> 
-                            <i data-feather="user-plus"></i>
-                        </span>
-                        <span class="pc-mtext transition-all duration-300">Tài khoản người dùng</span>
-                    </a>
-                </li>
-                <li class="pc-item pc-hasmenu">
-                    <a href="../elements/AdminAccount.jsp" class="pc-link transition-all duration-300 ease-in-out">
-                        <span class="pc-micon transition-transform duration-300"> 
-                            <i data-feather="user-plus"></i>
-                        </span>
-                        <span class="pc-mtext transition-all duration-300">Tài khoản nhân viên</span>
-                    </a>
-                </li>
-                
-                <li class="pc-item pc-caption">
-                    <label>Thống kê</label>
-                    <i data-feather="sidebar"></i>
-                </li>
-                <li class="pc-item pc-hasmenu">
-                    <a href="../elements/statistics.jsp" class="pc-link transition-all duration-300 ease-in-out">
-                        <span class="pc-micon transition-transform duration-300"> 
-                            <i data-feather="bar-chart-2"></i>
-                        </span>
-                        <span class="pc-mtext transition-all duration-300">Thống kê doanh thu</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
+<nav class="admin-sidebar" id="adminSidebar">
+    <div class="sidebar-brand">
+        <a href="../View/AdminHome.jsp">
+            <i class="fas fa-lightbulb"></i>
+            <span>LightShop</span>
+        </a>
+    </div>
+
+    <div class="sidebar-section">
+        <p class="sidebar-label">Tổng quan</p>
+        <a href="../View/AdminHome.jsp" class="sidebar-link">
+            <i class="fas fa-gauge-high"></i>
+            <span>Dashboard</span>
+        </a>
+    </div>
+
+    <div class="sidebar-section">
+        <p class="sidebar-label">Sản phẩm</p>
+        <a href="../elements/ShopItem.jsp" class="sidebar-link">
+            <i class="fas fa-lightbulb"></i>
+            <span>Quản lý đèn</span>
+        </a>
+        <a href="../elements/ItemDetail.jsp" class="sidebar-link">
+            <i class="fas fa-layer-group"></i>
+            <span>Biến thể sản phẩm</span>
+        </a>
+        <a href="../elements/ProductStorage.jsp" class="sidebar-link">
+            <i class="fas fa-warehouse"></i>
+            <span>Kho hàng</span>
+        </a>
+        <a href="../elements/OrderManagement.jsp" class="sidebar-link">
+            <i class="fas fa-receipt"></i>
+            <span>Quản lý hóa đơn</span>
+        </a>
+    </div>
+
+    <div class="sidebar-section">
+        <p class="sidebar-label">Tài khoản</p>
+        <a href="../elements/AccountInfo.jsp" class="sidebar-link">
+            <i class="fas fa-id-badge"></i>
+            <span>Thông tin cá nhân</span>
+        </a>
+        <a href="../elements/UserAccount.jsp" class="sidebar-link">
+            <i class="fas fa-users"></i>
+            <span>Khách hàng</span>
+        </a>
+        <a href="../elements/AdminAccount.jsp" class="sidebar-link">
+            <i class="fas fa-user-shield"></i>
+            <span>Nhân viên</span>
+        </a>
+    </div>
+
+    <div class="sidebar-section">
+        <p class="sidebar-label">Báo cáo</p>
+        <a href="../elements/statistics.jsp" class="sidebar-link">
+            <i class="fas fa-chart-line"></i>
+            <span>Thống kê</span>
+        </a>
     </div>
 </nav>
-<!-- [ Sidebar Menu ] end -->
 
 <style>
-/* ===== SIDEBAR ANIMATION STYLES ===== */
-.pc-sidebar {
-    transition: all 0.3s ease-in-out;
+:root {
+    --sidebar-width: 250px;
+    --sidebar-bg: #0f172a;
+    --sidebar-accent: #38bdf8;
 }
 
-.pc-link {
-    position: relative;
-    overflow: hidden;
-    border-radius: 8px;
-    margin: 2px 8px;
-    padding: 12px 16px;
+.admin-sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: var(--sidebar-width);
+    background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
+    color: #e2e8f0;
+    padding: 26px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-shadow: 12px 0 35px rgba(15, 23, 42, 0.35);
+    z-index: 1000;
+    transition: transform 0.25s ease-in-out;
 }
 
-.pc-link::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-    transition: left 0.5s ease-in-out;
+body.sidebar-collapsed .admin-sidebar {
+    transform: translateX(-100%);
 }
 
-.pc-link:hover::before {
-    left: 100%;
+.sidebar-brand a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: inherit;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: 0.4px;
 }
 
-.pc-link:hover {
-    background: rgba(255, 255, 255, 0.05);
-    transform: translateX(5px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+.sidebar-brand i {
+    font-size: 24px;
+    color: var(--sidebar-accent);
 }
 
-.pc-link:hover .pc-micon {
-    transform: scale(1.1) rotate(5deg);
+.sidebar-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
-.pc-link:hover .pc-mtext {
+.sidebar-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(226, 232, 240, 0.65);
+    margin: 0 0 4px;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    color: rgba(226, 232, 240, 0.9);
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.sidebar-link i {
+    width: 18px;
+    text-align: center;
+    font-size: 15px;
+}
+
+.sidebar-link:hover {
+    background: rgba(148, 163, 184, 0.18);
     color: #fff;
-    font-weight: 500;
+    transform: translateX(4px);
 }
 
-/* Active state animation */
-.pc-link.active {
-    background: linear-gradient(135deg, #3f4d67 0%, #53668a 100%);
-    box-shadow: 0 4px 15px rgba(63, 77, 103, 0.4);
-    transform: translateX(8px);
-}
-
-.pc-link.active .pc-micon {
-    transform: scale(1.15);
+.sidebar-link.active {
+    background: rgba(56, 189, 248, 0.18);
     color: #fff;
+    border: 1px solid rgba(56, 189, 248, 0.45);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
 }
 
-.pc-link.active .pc-mtext {
-    color: #fff;
-    font-weight: 600;
-}
-
-/* Caption styles */
-.pc-caption {
-    opacity: 0;
-    animation: fadeInUp 0.6s ease-out forwards;
-}
-
-.pc-caption:nth-child(1) { animation-delay: 0.1s; }
-.pc-caption:nth-child(2) { animation-delay: 0.2s; }
-.pc-caption:nth-child(3) { animation-delay: 0.3s; }
-.pc-caption:nth-child(4) { animation-delay: 0.4s; }
-
-/* Menu item stagger animation */
-.pc-item:not(.pc-caption) {
-    opacity: 0;
-    transform: translateX(-20px);
-    animation: slideInRight 0.5s ease-out forwards;
-}
-
-.pc-item:nth-child(2) { animation-delay: 0.15s; }
-.pc-item:nth-child(3) { animation-delay: 0.2s; }
-.pc-item:nth-child(4) { animation-delay: 0.25s; }
-.pc-item:nth-child(5) { animation-delay: 0.3s; }
-.pc-item:nth-child(6) { animation-delay: 0.35s; }
-.pc-item:nth-child(7) { animation-delay: 0.4s; }
-.pc-item:nth-child(8) { animation-delay: 0.45s; }
-.pc-item:nth-child(9) { animation-delay: 0.5s; }
-.pc-item:nth-child(10) { animation-delay: 0.55s; }
-.pc-item:nth-child(11) { animation-delay: 0.6s; }
-.pc-item:nth-child(12) { animation-delay: 0.65s; }
-
-/* Keyframe animations */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes slideInRight {
-    from {
-        opacity: 0;
-        transform: translateX(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-/* Ripple effect */
-.pc-link {
-    position: relative;
-    overflow: hidden;
-}
-
-.pc-link::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.3);
-    transform: translate(-50%, -50%);
-    transition: width 0.3s ease-out, height 0.3s ease-out;
-}
-
-.pc-link:active::after {
-    width: 100px;
-    height: 100px;
-}
-
-/* Smooth scroll for navbar */
-.navbar-content {
-    scroll-behavior: smooth;
-}
-
-/* Loading animation for icons */
-.pc-micon i {
-    transition: all 0.3s ease;
-}
-
-.pc-link:hover .pc-micon i {
-    animation: iconPulse 1s ease-in-out;
-}
-
-@keyframes iconPulse {
-    0%, 100% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.2);
-    }
-}
-
-/* Responsive adjustments */
 @media (max-width: 1024px) {
-    .pc-link:hover {
-        transform: translateX(3px);
+    .admin-sidebar {
+        transform: translateX(-100%);
     }
-    
-    .pc-link.active {
-        transform: translateX(5px);
-    }
-}
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-    .pc-link:hover {
-        background: rgba(255, 255, 255, 0.1);
-    }
-    
-    .pc-link.active {
-        background: linear-gradient(135deg, #53668a 0%, #3f4d67 100%);
+    body.sidebar-open .admin-sidebar {
+        transform: translateX(0);
     }
 }
 </style>
 
 <script>
-// JavaScript for enhanced sidebar interactions
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize sidebar animations
-    initSidebarAnimations();
-    
-    // Add click handlers for menu items
-    const menuLinks = document.querySelectorAll('.pc-link');
-    
-    menuLinks.forEach(link => {
-        // Remove active class from all links
-        link.addEventListener('click', function(e) {
-            // Only prevent default if it's not an external link
-            if (!this.getAttribute('href').startsWith('http')) {
-                e.preventDefault();
-                
-                // Remove active class from all links
-                menuLinks.forEach(l => l.classList.remove('active'));
-                
-                // Add active class to clicked link
-                this.classList.add('active');
-                
-                // Add ripple effect
-                createRippleEffect(e);
-                
-                // Navigate after animation
-                setTimeout(() => {
-                    window.location.href = this.getAttribute('href');
-                }, 300);
-            }
-        });
-        
-        // Hover effects
-        link.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateX(5px)';
-        });
-        
-        link.addEventListener('mouseleave', function() {
-            if (!this.classList.contains('active')) {
-                this.style.transform = 'translateX(0)';
-            }
-        });
-    });
-    
-    // Ripple effect function
-    function createRippleEffect(event) {
-        const link = event.currentTarget;
-        const circle = document.createElement('span');
-        const diameter = Math.max(link.clientWidth, link.clientHeight);
-        const radius = diameter / 2;
-        
-        circle.style.width = circle.style.height = diameter + 'px';
-        circle.style.left = (event.clientX - link.getBoundingClientRect().left - radius) + 'px';
-        circle.style.top = (event.clientY - link.getBoundingClientRect().top - radius) + 'px';
-        circle.classList.add('ripple');
-        
-        const ripple = link.getElementsByClassName('ripple')[0];
-        if (ripple) {
-            ripple.remove();
-        }
-        
-        link.appendChild(circle);
-    }
-    
-    // Initialize sidebar animations
-    function initSidebarAnimations() {
-        // Add loaded class to trigger animations
-        setTimeout(() => {
-            document.querySelector('.pc-sidebar').classList.add('loaded');
-        }, 100);
-        
-        // Feather icons replacement
-        if (typeof feather !== 'undefined') {
-            feather.replace();
-        }
-    }
-    
-    // Add scroll animation to navbar
-    const navbarContent = document.querySelector('.navbar-content');
-    if (navbarContent) {
-        navbarContent.addEventListener('scroll', function() {
-            const scrolled = this.scrollTop > 10;
-            this.classList.toggle('scrolled', scrolled);
-        });
-    }
-    
-    // Keyboard navigation support
-    document.addEventListener('keydown', function(e) {
-        const activeElement = document.activeElement;
-        const menuItems = Array.from(document.querySelectorAll('.pc-link'));
-        const currentIndex = menuItems.indexOf(activeElement);
-        
-        if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            const nextIndex = (currentIndex + 1) % menuItems.length;
-            menuItems[nextIndex].focus();
-        } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            const prevIndex = (currentIndex - 1 + menuItems.length) % menuItems.length;
-            menuItems[prevIndex].focus();
-        } else if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            if (activeElement.classList.contains('pc-link')) {
-                activeElement.click();
-            }
+document.addEventListener('DOMContentLoaded', () => {
+    const links = document.querySelectorAll('.sidebar-link');
+    const currentPath = window.location.pathname.replace(/\\/g, '/');
+
+    links.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && currentPath.includes(href.replace('..', ''))) {
+            links.forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
         }
     });
 });
-
-// Additional CSS for ripple effect
-const style = document.createElement('style');
-style.textContent = `
-    .ripple {
-        position: absolute;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.6);
-        transform: scale(0);
-        animation: ripple-animation 0.6s linear;
-        pointer-events: none;
-    }
-    
-    @keyframes ripple-animation {
-        to {
-            transform: scale(4);
-            opacity: 0;
-        }
-    }
-    
-    .pc-sidebar.loaded .pc-item {
-        animation-play-state: running;
-    }
-    
-    .navbar-content.scrolled {
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
-    }
-`;
-document.head.appendChild(style);
 </script>
 
